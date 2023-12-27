@@ -1,7 +1,6 @@
 package db;
 
 import java.sql.*;
-import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -13,23 +12,24 @@ public class ClassMedia {
     private int mSize;
     private String mTypeMime;
     private  String mPath;
-    private ConnexionASdb connexionASdb;
-    public ClassMedia() throws Exception {
-        connexionASdb = new ConnexionASdb();
+    private static  ConnexionASdb connexionASdb;
+    public ClassMedia(){
     }
-    public ArrayList<ClassMedia> loadMedia(int id,String assosTable) throws Exception {
+    public static ArrayList<ClassMedia> loadMedia(int id,String assosTable) throws Exception {
+        ConnexionASdb connexionASdb = new ConnexionASdb();
         ArrayList<ClassMedia> tempMedias =  new ArrayList<ClassMedia>();
-        String sqlReq = "SELECT * FROM ba_media JOIN ba_middlemedia"+assosTable+" ON (ba_media.id=ba_middlemedia"+assosTable+".idmedia) WHERE ba_middlemedia"+assosTable+".id"+assosTable +"=?" ;
+        String sqlReq = "SELECT * FROM ba_media JOIN ba_middlemedia"+assosTable+" ON (ba_media.id=ba_middlemedia"+assosTable+".idmedia) WHERE ba_middlemedia"+assosTable+".id"+assosTable +"="+id;
         Connection connection = connexionASdb.getConnection();
-        Statement statement = connection.createStatement();
-        ResultSet resultSet =  statement.executeQuery(sqlReq);
+        PreparedStatement statement = connection.prepareStatement(sqlReq);
+        ResultSet resultSet =  statement.executeQuery();
         if (resultSet != null){
             while (resultSet.next()){
                 ClassMedia temp = new ClassMedia();
                 temp.setId(resultSet.getInt("id"));
                 temp.setDescritption(resultSet.getString("Description"));
                 temp.setDateCreation(resultSet.getDate("dateCreation"));
-                temp.setName(resultSet.getString("name"));
+                temp.setTypeMime(resultSet.getString("typeMime"));
+                temp.setName(resultSet.getString("Description"));
                 temp.setSize(resultSet.getInt("size"));
                 temp.setPath(resultSet.getString("path"));
                 tempMedias.add(temp);
@@ -37,13 +37,7 @@ public class ClassMedia {
         }
         return  tempMedias;
     }
-    public void delete(int id) throws SQLException {
-        String sqlReq = "DELETE FROM ba_media WHERE id ="+id;
-        Connection connection = connexionASdb.getConnection();
-        Statement statement = connection.createStatement();
-        statement.executeQuery(sqlReq);
-    }
-    public  void create(String[] fields, String[] values) throws SQLException {
+    public void create(String[] fields, String[] values) throws SQLException {
         StringBuilder setValues  = new StringBuilder();
         StringBuilder setFiels = new StringBuilder();
         for (int i=1;i<values.length;i++){
@@ -57,28 +51,15 @@ public class ClassMedia {
         statement.setString(2,setValues.toString());
         statement.executeQuery();
     }
-    public  void update(int id, String[] fields, String[] values){
+    public void setId(int mId){this.mId = mId;}
+    public void setName(String mName) {this.mName = mName;}
+    public void setDateCreation(Date mdateCreation){this.mDateCreation = mdateCreation;}
+    public void setDescritption(String mDescritption){this.mDescritption = mDescritption;}
+    public void setTypeMime(String mTypeMime){this.mTypeMime = mTypeMime;}
+    public void setSize(int mSize){this.mSize = mSize;}
+    public void setPath(String mPath) {this.mPath = mPath;}
 
-    }
-    public void setId(int mId) {
-        this.mId = mId;
-    }
-    public void setName(String mName) {
-        this.mName = mName;
-    }
-    public void setDateCreation(Date mdateCreation) {
-        this.mDateCreation = mdateCreation;
-    }
-    public void setDescritption(String mDescritption) {
-        this.mDescritption = mDescritption;
-    }
-    public void setTypeMime(String mTypeMime) {
-        this.mTypeMime = mTypeMime;
-    }
-    public void setSize(int mSize) {
-        this.mSize = mSize;
-    }
-    public void setPath(String mPath) {
-        this.mPath = mPath;
-    }
+    public String getDescritption() {return mDescritption;}
+
+    public String getPath() { return mPath; }
 }

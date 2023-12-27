@@ -1,5 +1,8 @@
 package db;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -19,10 +22,33 @@ public class ClassPlayer {
     private  int mWeight;
     private  boolean mHurt;
     private  boolean mAvailable;
+    private ConnexionASdb connexionASdb;
     private ArrayList<ClassMedia> mMedias;
-    public ClassPlayer(){}
+    public ClassPlayer(int id){}
     public void setId(int mId) {
         this.mId = mId;
+    }
+    public void initialise() throws SQLException {
+        String sqlReqPlayer="SELECT * FROM ba_player WHERE id="+mId;
+        Statement statementPlayer = connexionASdb.getStatement();
+        ResultSet resultSet = statementPlayer.executeQuery(sqlReqPlayer);
+        if(resultSet.next()){
+            mId=resultSet.getInt("id");
+            mIdTeam=resultSet.getInt("idTeam");
+            mFirstName=resultSet.getString("LastName");
+            mLastName=resultSet.getString("firstName");
+            mBirthDay=resultSet.getDate("birthday");
+            mDescription=resultSet.getString("description");
+            mPhone=resultSet.getInt("phone");
+            mPhoneEmergency=resultSet.getInt("phoneEmergency");
+            mEmail=resultSet.getString("email");
+            mAddress=resultSet.getString("address");
+            mPostal=resultSet.getInt("address");
+            mHeight=resultSet.getInt("height");
+            mWeight=resultSet.getInt("weight");
+            mHurt=resultSet.getBoolean("hurt");
+            mAvailable=resultSet.getBoolean("available");
+        }
     }
     public void setIdTeam(int mIdTeam) {
         this.mIdTeam = mIdTeam;
@@ -66,7 +92,7 @@ public class ClassPlayer {
     public void setWeight(int mWeight) {
         this.mWeight = mWeight;
     }
-    public void setMedias(){
+    public void setMedias() throws Exception { mMedias =  ClassMedia.loadMedia(this.mId,"Team");}
 
-    }
+    public int getId() { return mId;}
 }

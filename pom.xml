@@ -76,9 +76,19 @@
             <version>1.5.0-b01</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.net.httpserver</groupId>
-            <artifactId>http</artifactId>
-            <version>20070405</version>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>21-ea+24</version>
+        </dependency>
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>8.40.12</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jfoenix</groupId>
+            <artifactId>jfoenix</artifactId>
+            <version>9.0.10</version>
         </dependency>
     </dependencies>
 
@@ -103,7 +113,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.example.assocationbasketproject/com.example.assocationbasketproject.HelloApplication
+                                com.example.assocationbasketproject/main.assocationbasketproject.Main
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
