@@ -17,7 +17,7 @@
       <AnchorPane prefHeight="533.0" prefWidth="490.0">
          <children>
             <DatePicker fx:id="datePicker" layoutX="58.0" layoutY="152.0" prefHeight="31.0" prefWidth="174.0" />
-            <Button layoutX="312.0" layoutY="433.0" mnemonicParsing="false" onAction="#save" prefHeight="31.0" prefWidth="151.0" text="Save" />
+            <Button fx:id="btnSave" layoutX="312.0" layoutY="433.0" mnemonicParsing="false" onAction="#save" prefHeight="31.0" prefWidth="151.0" text="Save" />
             <Button layoutX="59.0" layoutY="433.0" mnemonicParsing="false" onAction="#cancel" prefHeight="31.0" prefWidth="174.0" text="Cancel" />
             <Label layoutX="59.0" layoutY="14.0" prefHeight="55.0" prefWidth="404.0" text="Label" />
             <Label layoutX="58.0" layoutY="127.0" text="Date / Time" />

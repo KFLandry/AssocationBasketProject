@@ -98,7 +98,7 @@
                      <children>
                         <BorderPane prefHeight="740.0" prefWidth="993.0">
                            <left>
-                              <Separator orientation="VERTICAL" prefHeight="740.0" prefWidth="9.0" BorderPane.alignment="CENTER" />
+                              <Separator orientation="VERTICAL" prefHeight="740.0" prefWidth="10.0" BorderPane.alignment="CENTER" />
                            </left></BorderPane>
                      </children>
                   </StackPane>

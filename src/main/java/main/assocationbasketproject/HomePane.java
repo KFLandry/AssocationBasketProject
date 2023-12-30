@@ -2,14 +2,17 @@ package main.assocationbasketproject;
 
 import db.ClassCoatch;
 import db.ClassEvent;
+import db.ConnexionASdb;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -17,42 +20,89 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import main.assocationbasketproject.dialog.FillNewEvent;
+import manager.ClassManager;
 import variables.CardDay;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class HomePane implements Initializable {
     @FXML
     private DatePicker datePicker;
     @FXML
-    private TableView otherTab;
+    private TableView<ClassEvent> otherTab;
     @FXML
-    private TableView tabMatch;
-    private ClassEvent events;
+    private TableView<ClassEvent> tabMatch;
+    @FXML
+    private TableColumn<ClassEvent, Integer> idColumn;
+    @FXML
+    private TableColumn<ClassEvent, String> commentColumn;
+    @FXML
+    private TableColumn<ClassEvent, String> opponentColumn;
+    @FXML
+    private TableColumn<ClassEvent, Date> dateColumn;
+    @FXML
+    private TableColumn<ClassEvent, Integer> oIdColumn;
+    @FXML
+    private TableColumn<ClassEvent, String> oCommentColumn;
+    @FXML
+    private TableColumn<ClassEvent, String> oSubjectColumn;
+    @FXML
+    private TableColumn<ClassEvent, Date> oDateColumn;
+    @FXML
+    private TableColumn<ClassEvent, Date> cId;
+    @FXML
+    private TableColumn<ClassEvent, Date> cDate;
+    @FXML
+    private TableColumn<ClassEvent, Date> cTime;
+    @FXML
+    private TableColumn<ClassEvent, Date> cScheduleAt;
+    @FXML
+    private TableColumn<ClassEvent, Date> cType;
+    @FXML
+    private TableColumn<ClassEvent, Date> cImportance;
+    @FXML
+    private TableColumn<ClassEvent, Date> cOppenent;
+    @FXML
+    private TableColumn<ClassEvent, Date> cDescription;
+    @FXML
+    private TableColumn<ClassEvent, Date> cClose;
+
+    @FXML
+    private  ChoiceBox<String> cbEvents;
+    @FXML
+    private  ChoiceBox<String> cbImportance;
+    @FXML
+    private  ChoiceBox<String> cbClose;
+    @FXML
+    private TextField fKeyWord;
+    @FXML
+    private DatePicker dateBegin;
+    @FXML
+    private DatePicker dateEnd;
+    private Queue<ClassEvent> queueEvent;
+    private ClassEvent oneSchedule;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        queueEvent = new ArrayDeque<>();
         try {
-            events = new ClassEvent();
-            events.loadEvents(ClassCoatch.getInstance().getId(),null);
-            fillTabs(events.getEvents());
+            oneSchedule = new ClassEvent();
+            oneSchedule.loadEvents(ClassCoatch.getInstance().getId(),null,false);
+            fillTabs(oneSchedule.getEvents());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        bindColumnsTables();
         custumDatePicker();
     }
+
     void custumDatePicker(){
         datePicker.show();
         // Personnaliser le DatePicker
-        // On commence par le text Field
         TextField customLabel = datePicker.getEditor();
         customLabel.setAlignment(Pos.CENTER);
-        // Toutes les cellules du calendrier
         datePicker.setDayCellFactory(new Callback<DatePicker, DateCell>() {
             @Override
             public DateCell call(DatePicker param) {
@@ -69,8 +119,8 @@ public class HomePane implements Initializable {
                                 datePicker.setPromptText(date.toString());
                                 datePicker.show();
                                 try {
-                                    events.loadEvents(ClassCoatch.getInstance().getId(),date);
-                                    fillTabs(events.getEvents());
+                                    oneSchedule.loadEvents(ClassCoatch.getInstance().getId(),date,false);
+                                    fillTabs(oneSchedule.getEvents());
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
                                 }
@@ -79,17 +129,15 @@ public class HomePane implements Initializable {
                                         FXMLLoader fxml =  new FXMLLoader(Objects.requireNonNull(getClass().getResource("dialog/dialogEvent.fxml")));
                                         DialogPane dialogPane =  fxml.load();
                                         FillNewEvent dialogEvent =  fxml.getController();
-                                        dialogEvent.initialise(date);
+                                        dialogEvent.initialise(date,null);
                                         Stage stage =  new Stage();
                                         stage.setTitle("Fills infos of events");
                                         stage.setScene(new Scene(dialogPane));
                                         stage.showAndWait();
                                         //Refresh les tableaux
-                                        events.loadEvents(ClassCoatch.getInstance().getId(),date);
-                                        fillTabs(events.getEvents());
+                                        oneSchedule.loadEvents(ClassCoatch.getInstance().getId(),date,false);
+                                        fillTabs(oneSchedule.getEvents());
 
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
                                     } catch (Exception e) {
                                         throw new RuntimeException(e);
                                     }
@@ -110,7 +158,13 @@ public class HomePane implements Initializable {
 
                             // Créer un AnchorPane en bas avec un label quelconque
                             AnchorPane bottomAnchor = new AnchorPane();
-                            Label customLabel = new Label("(0) Event(s)");
+                            int nb = 0;
+                            try {
+                                nb  = oneSchedule.countEvent(ClassCoatch.getInstance().getId(), date);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                            Label customLabel = new Label("("+nb+") Event(s)");
                             customLabel.setAlignment(Pos.CENTER);
                             bottomAnchor.getChildren().add(customLabel);
                             AnchorPane.setBottomAnchor(customLabel, 10.0);
@@ -129,22 +183,88 @@ public class HomePane implements Initializable {
     }
     void handleAction(MouseEvent event){}
     void fillTabs(ArrayList<ClassEvent> events){
+        ObservableList<ClassEvent> mList =FXCollections.observableArrayList();
+        ObservableList<ClassEvent> oList =FXCollections.observableArrayList();
         for (ClassEvent event :  events){
-            if (event.getType().equals("Other")){
-                ObservableList<? extends Serializable> list = FXCollections.observableArrayList(event.getId(),event.getDatePlanned(),event.getSubject(),event.getDetails());
-                otherTab.setItems((ObservableList<String>) list);
+            if (event.getType().toString().equals("Other")){
+                oList.add(event);
             }else{
-                ObservableList<? extends Serializable> list = FXCollections.observableArrayList(event.getId(),event.getDatePlanned(),event.getSubject(),event.getDetails());
-                tabMatch.setItems((ObservableList<String>) list);
+                mList.add(event);
             }
+        }
+        tabMatch.setItems(mList);
+        otherTab.setItems(oList);
+
+    }
+    @FXML
+    void addEvent() throws Exception {
+        FXMLLoader fxml =  new FXMLLoader(Objects.requireNonNull(getClass().getResource("dialog/dialogEvent.fxml")));
+        DialogPane dialogPane =  fxml.load();
+        FillNewEvent dialogEvent =  fxml.getController();
+        dialogEvent.initialise(datePicker.getValue(),null);
+        Stage stage =  new Stage();
+        stage.setTitle("Fills infos of events");
+        stage.setScene(new Scene(dialogPane));
+        stage.showAndWait();
+
+        oneSchedule.loadEvents(ClassCoatch.getInstance().getId(),null,false);
+        fillTabs(oneSchedule.getEvents());
+    }
+    @FXML
+    void deleteEvent(ActionEvent event) throws Exception {
+        TableView<ClassEvent> currentTable  = (TableView) event.getSource();
+        String[] fields =  {"close"};
+        String[] values = {"0"};
+        ConnexionASdb connexionASdb = ClassManager.getUniqueInstance().getConnexionASdb();
+        queueEvent.offer(oneSchedule.getEvent(currentTable.getSelectionModel().getSelectedItem().getId()));
+        connexionASdb.update(currentTable.getSelectionModel().getSelectedItem().getId(),"ba_event",fields,values);
+
+        oneSchedule.loadEvents(ClassCoatch.getInstance().getId(),null,false);
+        fillTabs(oneSchedule.getEvents());
+    }
+    @FXML
+    void updateEvent(ActionEvent event) throws Exception {
+        int id = 0;
+       //if (tabMatch.getSelectionModel().isSelected()){
+       //    id =tabMatch.getSelectionModel().getSelectedItem().getId();
+       //}else if(otherTab.getSelectionModel().isSelected()) {
+       //    id =otherTab.getSelectionModel().getSelectedItem().getId();
+       //}else {
+       //    JOptionPane.showMessageDialog(null,"Vous devez selectionner une ligne  de tableau pour pouvoir la modifier...");
+       //}
+        // La mise a jour est faite pour une ligne en fonction de l'id
+        FXMLLoader fxml =  new FXMLLoader(Objects.requireNonNull(getClass().getResource("dialog/dialogEvent.fxml")));
+        DialogPane dialogPane =  fxml.load();
+        FillNewEvent dialogEvent =  fxml.getController();
+        // Je remplie la queue d'evenenement pour defaire les modifications au cas où!!
+        queueEvent.offer(oneSchedule.getEvent(id));
+        dialogEvent.initialise(datePicker.getValue(),id);
+        Stage stage =  new Stage();
+        stage.setTitle("Fills infos of events");
+        stage.setScene(new Scene(dialogPane));
+        stage.showAndWait();
+
+        oneSchedule.loadEvents(ClassCoatch.getInstance().getId(),null,false);
+        fillTabs(oneSchedule.getEvents());
+    }
+    @FXML
+    void undo() throws Exception {
+        if (!queueEvent.isEmpty()){
+            ClassEvent lastEvent = queueEvent.peek();
+            String[] fields =  {"close"};
+            String[] values = {"0"};
+            ConnexionASdb connexionASdb = ClassManager.getUniqueInstance().getConnexionASdb();
+            connexionASdb.update(lastEvent.getId(),"ba_event",fields,values);
+
+            oneSchedule.loadEvents(ClassCoatch.getInstance().getId(),null,false);
+            fillTabs(oneSchedule.getEvents());
         }
     }
     @FXML
-    void addEvent(){}
-    @FXML
-    void deleteEvent(){}
-    @FXML
-    void updateEvent(){}
+    void search(ActionEvent event) throws Exception {
+        oneSchedule.search(dateBegin.getValue(),dateEnd.getValue(),Boolean.valueOf(cbClose.getSelectionModel().getSelectedItem()),fKeyWord.getText());
+        fillTabs(oneSchedule.getEvents());
+    }
     void loadGrid() throws IOException {
         int day = 0;
         int row  =  1;
@@ -178,6 +298,29 @@ public class HomePane implements Initializable {
                 row ++;
             }
         }
+    }
+    private  void bindColumnsTables(){
+        // Je lie les colonnes des tableaux aux propriétes des classes par lesquelles elles seront remplies
+        //tables Match and  training
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("Id"));
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("datePlanned"));
+        opponentColumn.setCellValueFactory(new PropertyValueFactory<>("Subject"));
+        commentColumn.setCellValueFactory(new PropertyValueFactory<>("Details"));
+        // Table Other
+        oIdColumn.setCellValueFactory(new PropertyValueFactory<>("Id"));
+        oDateColumn.setCellValueFactory(new PropertyValueFactory<>("datePlanned"));
+        oSubjectColumn.setCellValueFactory(new PropertyValueFactory<>("Subject"));
+        oCommentColumn.setCellValueFactory(new PropertyValueFactory<>("Details"));
+        //Table Search
+        cId.setCellValueFactory(new PropertyValueFactory<>("Id"));
+        cDate.setCellValueFactory(new PropertyValueFactory<>("DatePlanned"));
+        cTime.setCellValueFactory(new PropertyValueFactory<>("Time"));
+        cScheduleAt.setCellValueFactory(new PropertyValueFactory<>("Id"));
+        cType.setCellValueFactory(new PropertyValueFactory<>("Type"));
+        cImportance.setCellValueFactory(new PropertyValueFactory<>("Importance"));
+        cOppenent.setCellValueFactory(new PropertyValueFactory<>("Subject"));
+        cDescription.setCellValueFactory(new PropertyValueFactory<>("Details"));
+        cClose.setCellValueFactory(new PropertyValueFactory<>("Close"));
     }
 }
 
