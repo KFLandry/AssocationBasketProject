@@ -20,6 +20,7 @@ module com.example.assocationbasketproject {
     opens main.assocationbasketproject to javafx.fxml;
     opens main.assocationbasketproject.dialog to javafx.fxml;
     exports main.assocationbasketproject;
+    exports main.assocationbasketproject.dialog;
     exports db;
     exports variables;
     opens db to javafx.fxml;

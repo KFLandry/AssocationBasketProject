@@ -15,6 +15,7 @@ public class ClassStatistique {
     private  ConnexionASdb connexionASdb;
     private ArrayList<ClassStatistique> statistiques;
     public ClassStatistique() throws Exception {connexionASdb =  new ConnexionASdb();}
+
     public  void initaliseStatistique(int id,String fieldName) throws Exception {
         String sqlReq =  "SELECT * FROM ba_statistique WHERE "+fieldName+"="+id;ResultSet resultSet =  connexionASdb.getStatement().executeQuery(sqlReq);
         while(resultSet != null && resultSet.next()){

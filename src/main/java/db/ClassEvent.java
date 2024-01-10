@@ -12,8 +12,6 @@ public class ClassEvent {
     private int mId;
     private  String mName;
     private Date currentDate;
-
-
     public void setSubject(String mSubject) { this.mSubject = mSubject;}
 
     public void setDatePlanned(java.sql.Date datePlanned) { this.mDatePlanned = datePlanned;}
@@ -40,7 +38,7 @@ public class ClassEvent {
     public void setClose(Boolean close) { this.mClose = close; }
     public  ClassEvent getEvent(int id) throws Exception {
         ClassEvent temp  = new ClassEvent();
-        String sqlReq = "SELECT * FROM ba_event WHERE idCoach=? LIMIT 30 ";
+        String sqlReq = "SELECT * FROM ba_event WHERE id=?";
         PreparedStatement statement =  connexionASdb.getConnection().prepareStatement(sqlReq);
         statement.setInt(1,id);
         ResultSet resultSet = statement.executeQuery();
@@ -58,13 +56,9 @@ public class ClassEvent {
         return temp;
     }
     private  Boolean mClose;
-
     public ConnexionASdb getConnexionASdb() {return connexionASdb;}
-
     private ConnexionASdb connexionASdb;
-
     public ArrayList<ClassEvent> getEvents() { return events; }
-
     private ArrayList<ClassEvent> events;
     public int getId() {return mId;}
     public String getName() {return mName;}

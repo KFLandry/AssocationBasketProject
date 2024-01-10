@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ClassCoatch {
+public class ClassCoach {
     private int mId;
     private String mName;
     private String mLastName;
@@ -29,13 +29,13 @@ public class ClassCoatch {
     private  String mtitles;
     private ArrayList<ClassMedia> mMedias;
     private ConnexionASdb connexionASdb;
-    private volatile  static ClassCoatch instance;
-    private ClassCoatch() {}
-    public static ClassCoatch getInstance() throws Exception {
+    private volatile  static ClassCoach instance;
+    private ClassCoach() {}
+    public static ClassCoach getInstance() throws Exception {
         if(instance == null){
-            synchronized (ClassCoatch.class){
+            synchronized (ClassCoach.class){
                 if (instance == null){
-                    instance = new ClassCoatch();
+                    instance = new ClassCoach();
                     instance.setConnexionASdb(new ConnexionASdb());
                 }
             }
@@ -69,7 +69,7 @@ public class ClassCoatch {
         String path = "";
         mMedias =  ClassMedia.loadMedia(mId,"coach");
         for(ClassMedia occ : mMedias){
-            if (occ.getDescritption().equals(name)){
+            if (occ.getDescription().equals(name)){
                 path = occ.getPath();
                 break;
             }
@@ -90,7 +90,7 @@ public class ClassCoatch {
     public void setConnexionASdb(ConnexionASdb connexionASdb) {this.connexionASdb = connexionASdb;}
 
     public static void main(String[] args) throws Exception {
-        ClassCoatch coatch = ClassCoatch.getInstance();
+        ClassCoach coatch = ClassCoach.getInstance();
         String[] fields =  {"lastName","firstName","birth","phone","email", "address","login","password"};
         String[] values = {"Poppovitch","gregs","19450112","0623542354","gregs@vitch.fr","24 Rue Houston","Pgregs","AZERTY"};
        // coatch.createCoatch(fields,values);

@@ -20,6 +20,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 import service.ClassGmail;
+import variables.ClassFieldFormat;
+import variables.ToastMessage;
 
 import javax.mail.MessagingException;
 import javax.swing.*;
@@ -28,7 +30,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -132,11 +133,7 @@ public class LogonController {
         pathImage = fileChooser.getSelectedFile().toURI().toString();
         Image image =  new Image(pathImage);
         circleProfile.setFill(new ImagePattern(image));
-        }else Notifications.create()
-                .text("Le fichier entré n'est pas pris en compte")
-                .hideAfter(Duration.millis(2))
-                .position(Pos.CENTER)
-                .show();
+        }else ToastMessage.show("Info","Le fichier entré n'est pas pris en compte",3);
     }
     @FXML
     void signUp(ActionEvent event) throws Exception {
@@ -144,25 +141,25 @@ public class LogonController {
             if (!(fName.getText().isEmpty() && fLastName.getText().isEmpty() && fEmail.getText().isEmpty() && fBirthday.getPromptText().isEmpty() && fPhone.getText().isEmpty() && fCountry.getText().isEmpty() && fCity.getText().isEmpty() && fAddress.getText().isEmpty() && fPostal.getText().isEmpty() && fLogin.getText().isEmpty() && fConfirm.getText().isEmpty())){
                 if (labelTrace.getText().equals("Code correct")){
                     // Insertaion dans la table ba_coach
-                    String[] fiels = {"lastName","firstName","email","birth","phone","nationality","city","address","postal","login","password"};
+                    String[] fields = {"lastName","firstName","email","birth","phone","nationality","city","address","postal","login","password"};
                     String[] values = {fName.getText(),fLastName.getText(),fEmail.getText(), String.valueOf(fBirthday.getValue()),fPhone.getText(),fCountry.getText(),fCity.getText(),fAddress.getText(),fPostal.getText(),fLogin.getText(),fConfirm.getText()};
                     connexionASdb =  new ConnexionASdb();
-                  if (connexionASdb.insert("ba_coach",fiels,values)>0){
+                  if (connexionASdb.insert("ba_coach",fields,values)>0){
                       // Insert dans la table ba_media dans la table d'associaction
                       int idMedia =  0;
-                      int idCoach =  connexionASdb.insert("ba_coach",fiels,values);
+                      int idCoach =  connexionASdb.insert("ba_coach",fields,values);
                       if (!((ImagePattern) circleProfile.getFill()).getImage().isError()){
                           // Uploader l'image en question dans le repertoire image du Projet
                             // Path scr  = Paths.get(pathImage.substring(6))// Path desc =  Paths.get("..\\resources\\Image")// Path path = Files.copy(scr,desc.resolve(scr), StandardCopyOption.REPLACE_EXISTING);
 
-                         fiels = new String[]{"description", "typeMime", "dateCreation", "path"};
+                         fields = new String[]{"description", "typeMime", "dateCreation", "path"};
                           DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
                          values = new String[]{"profile", "Image", String.valueOf((LocalDateTime.now()).format(f)), (((ImagePattern) circleProfile.getFill()).getImage()).getUrl()};
-                         idMedia  =  connexionASdb.insert("ba_media",fiels,values);
+                         idMedia  =  connexionASdb.insert("ba_media",fields,values);
                          if (idMedia > 0){
-                             fiels =  new String[]{"idMedia","idCoach"};
+                             fields =  new String[]{"idMedia","idCoach"};
                              values = new String[]{String.valueOf(idMedia), String.valueOf(idCoach)};
-                             connexionASdb.insert("ba_middlemediacoach",fiels,values);
+                             connexionASdb.insert("ba_middlemediacoach",fields,values);
                          }
                      }
                      Stage stage = new Stage();
@@ -260,26 +257,18 @@ public class LogonController {
     @FXML
     void handleField(MouseEvent event){
         TextField currentField =  (TextField) event.getSource();
-        String finalMotif = getMotif(currentField);
-        UnaryOperator<TextFormatter.Change> filter = change -> {
-            if (change.getText().matches(finalMotif)) {
-                return null;
-            }
-            return change;
-        };
-        TextFormatter<String> textFormatter = new TextFormatter<>(filter);
-        currentField.setTextFormatter(textFormatter);
+        ClassFieldFormat.formatField(currentField,getMotif(currentField));
     }
     private String getMotif(TextField currentField) {
         String motif = null;
         if(currentField.equals(fName) || currentField.equals(fLastName) || currentField.equals(fLogin) || currentField.equals(fCity) || currentField.equals(fCountry)){
-            motif =  "[^A-Za-z\\s]";
+            motif =  "label";
         }else if (currentField.equals(fEmail)){
-            motif =  "[^A-Za-z0-9\\@\\.+$]";
+            motif =  "email";
         } else if (currentField.equals(fPhone) || currentField.equals(fPostal)) {
-            motif =  "[^0-9]";
+            motif =  "number";
         }else if (currentField.equals(fAddress) || currentField.equals(fPassword) || currentField.equals(fConfirm) ){
-            motif =  "[^A-Za-z0-9\\s]";
+            motif =  "text";
         }
         return motif;
     }

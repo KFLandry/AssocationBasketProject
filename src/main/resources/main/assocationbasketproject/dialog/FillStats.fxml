@@ -2,87 +2,96 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.DialogPane?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="734.0" prefWidth="887.0" stylesheets="@style/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.Player">
-   <children>
-      <VBox layoutX="599.0" layoutY="23.0">
+<DialogPane prefHeight="450.0" prefWidth="690.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.dialog.FillStats">
+   <content>
+      <AnchorPane prefHeight="454.0" prefWidth="490.0">
          <children>
-            <TextField fx:id="fSearch" onInputMethodTextChanged="#search" onKeyPressed="#search" prefHeight="25.0" prefWidth="225.0" />
-            <ListView fx:id="listView" prefHeight="219.0" prefWidth="225.0" style="-fx-border-radius: 0 0 10 10; -fx-border-style: solid; -fx-border-color: gray;" />
-         </children>
-      </VBox>
-      <Button layoutX="833.0" layoutY="23.0" mnemonicParsing="false" onAction="#search" prefHeight="25.0" prefWidth="35.0" text="Search" />
-      <Pane layoutX="20.0" layoutY="60.0" prefHeight="207.0" prefWidth="572.0" style="-fx-border-style: solid; -fx-border-color: gray; -fx-border-radius: 10 10 0 10;">
-         <children>
-            <Circle fx:id="circleProfile" fill="WHITE" layoutX="99.0" layoutY="104.0" radius="85.0" stroke="BLACK" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" style="-fx-stroke-width: 2;" styleClass="cover-image">
-               <effect>
-                  <DropShadow />
-               </effect></Circle>
-            <HBox layoutX="217.0" layoutY="16.0" spacing="5.0">
+            <VBox layoutX="20.0" layoutY="9.0" prefHeight="430.0" prefWidth="490.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <VBox prefHeight="175.0" prefWidth="113.0" spacing="5.0">
+                  <Label prefHeight="27.0" prefWidth="156.0" text="Fill Stats">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Label>
+                  <VBox prefHeight="404.0" prefWidth="470.0" spacing="10.0">
                      <children>
-                        <Label prefHeight="31.0" prefWidth="238.0" text="Nom : " />
-                        <Label prefHeight="31.0" prefWidth="238.0" text="Age :" />
-                        <Label prefHeight="31.0" prefWidth="238.0" text="Nationality" />
-                        <Label prefHeight="31.0" prefWidth="238.0" text="Size / Weight : " />
-                        <Label prefHeight="31.0" prefWidth="238.0" text="Categoriy : " />
-                     </children>
-                  </VBox>
-                  <VBox prefHeight="175.0" prefWidth="161.0" spacing="5.0">
-                     <children>
-                        <Label fx:id="lName" prefHeight="31.0" prefWidth="238.0" text="Specimen" />
-                        <Label fx:id="lAge" prefHeight="31.0" prefWidth="238.0" text="18" />
-                        <Label fx:id="lNationality" prefHeight="31.0" prefWidth="238.0" text="French" />
-                        <Label fx:id="lSize" prefHeight="31.0" prefWidth="161.0" text="1.89 / 82" />
-                        <Label fx:id="lCategory" prefHeight="31.0" prefWidth="238.0" text="U18" />
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
-            <Button disable="true" layoutX="512.0" layoutY="180.0" mnemonicParsing="false" onAction="#fillStats" text="Fill stats" />
-         </children>
-      </Pane>
-      <TabPane layoutX="20.0" layoutY="283.0" prefHeight="430.0" prefWidth="848.0" tabClosingPolicy="UNAVAILABLE">
-        <tabs>
-          <Tab text="Profile">
-               <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                     <children>
-                        <SplitPane dividerPositions="0.3333333333333333" layoutX="109.0" layoutY="101.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="618.0">
-                          <items>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="103.0" prefWidth="193.0">
+                        <Pane prefHeight="90.0" prefWidth="470.0" style="-fx-border-style: solid; -fx-border-color: gray; -fx-border-radius: 5;">
+                           <children>
+                              <VBox layoutX="6.0" layoutY="6.0" spacing="10.0">
                                  <children>
-                                    <StackPane layoutX="108.0" layoutY="-34.0" prefHeight="63.0" prefWidth="616.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <HBox />
+                                    <HBox />
+                                 </children>
+                              </VBox>
+                              <HBox layoutX="160.0" layoutY="21.0" spacing="50.0">
+                                 <children>
+                                    <Label prefHeight="27.0" prefWidth="42.0" text="Name" />
+                                    <ComboBox fx:id="cbWho" prefHeight="25.0" prefWidth="186.0" />
+                                 </children>
+                              </HBox>
+                              <HBox layoutX="129.0" layoutY="40.0" spacing="50.0" />
+                           </children>
+                        </Pane>
+                        <HBox spacing="50.0">
+                           <children>
+                              <VBox>
+                                 <children>
+                                    <Label prefHeight="21.0" prefWidth="25.0" text="Date" />
+                                    <DatePicker fx:id="dDate" prefHeight="33.0" prefWidth="174.0" />
+                                 </children>
+                              </VBox>
+                              <VBox>
+                                 <children>
+                                    <Label prefHeight="21.0" prefWidth="72.0" text="Oppenent" />
+                                    <TextField fx:id="fOppenent" prefHeight="33.0" prefWidth="149.0" />
+                                 </children>
+                              </VBox>
+                              <VBox layoutX="234.0" layoutY="10.0" prefHeight="42.0" prefWidth="110.0">
+                                 <children>
+                                    <Label prefHeight="21.0" prefWidth="72.0" text="Score" />
+                                    <HBox prefHeight="25.0" prefWidth="85.0" spacing="5.0">
+                                       <children>
+                                          <TextField fx:id="fScore" prefHeight="25.0" prefWidth="40.0" />
+                                          <Label prefHeight="17.0" prefWidth="17.0" text=" : " />
+                                          <TextField fx:id="fScore1" prefHeight="25.0" prefWidth="37.0" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="463.0">
+                           <items>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="103.0" prefWidth="193.0">
+                                 <children>
+                                    <StackPane layoutX="108.0" layoutY="-34.0" prefHeight="2.0" prefWidth="468.0" AnchorPane.bottomAnchor="-2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
                                           <Label alignment="CENTER" prefHeight="39.0" prefWidth="304.0" text="Regular average" />
                                        </children>
                                     </StackPane>
                                  </children>
                               </AnchorPane>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                  <children>
                                     <HBox layoutX="202.0" layoutY="15.0" prefHeight="129.0" prefWidth="616.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
                                           <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
-                                            <items>
-                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                             <items>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                                    <children>
                                                       <StackPane layoutX="-61.0" layoutY="-61.0" prefHeight="61.0" prefWidth="121.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <children>
@@ -91,16 +100,16 @@
                                                       </StackPane>
                                                    </children>
                                                 </AnchorPane>
-                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                                    <children>
                                                       <StackPane layoutX="-51.0" layoutY="-61.0" prefHeight="60.0" prefWidth="121.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <children>
-                                                            <Label fx:id="lPoints" text="45.4" />
+                                                            <TextField fx:id="fPoints" prefHeight="63.0" prefWidth="90.0" />
                                                          </children>
                                                       </StackPane>
                                                    </children>
                                                 </AnchorPane>
-                                            </items>
+                                             </items>
                                           </SplitPane>
                                           <SplitPane dividerPositions="0.5" layoutX="10.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
                                              <items>
@@ -115,11 +124,12 @@
                                                 </AnchorPane>
                                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                                    <children>
-                                                      <StackPane layoutX="14.0" prefHeight="60.0" prefWidth="121.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                      <StackPane layoutX="-51.0" layoutY="-61.0" prefHeight="60.0" prefWidth="121.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <children>
-                                                            <Label fx:id="lRebounds" text="2.4" />
+                                                            <Label />
                                                          </children>
                                                       </StackPane>
+                                                      <TextField fx:id="fRebounds" layoutX="10.0" layoutY="10.0" prefHeight="60.0" prefWidth="90.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                              </items>
@@ -139,7 +149,8 @@
                                                    <children>
                                                       <StackPane layoutX="-51.0" layoutY="-61.0" prefHeight="60.0" prefWidth="121.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <children>
-                                                            <Label fx:id="lAssits" text="10.4" />
+                                                            <Label />
+                                                            <TextField fx:id="fAssists" prefHeight="63.0" prefWidth="90.0" />
                                                          </children>
                                                       </StackPane>
                                                    </children>
@@ -161,9 +172,10 @@
                                                    <children>
                                                       <StackPane layoutX="-51.0" layoutY="-61.0" prefHeight="60.0" prefWidth="121.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <children>
-                                                            <Label fx:id="lSteals" text="1.4" />
+                                                            <Label />
                                                          </children>
                                                       </StackPane>
+                                                      <TextField fx:id="fSteals" layoutX="10.0" layoutY="10.0" prefHeight="60.0" prefWidth="90.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                              </items>
@@ -183,7 +195,8 @@
                                                    <children>
                                                       <StackPane layoutX="-51.0" layoutY="-61.0" prefHeight="60.0" prefWidth="121.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <children>
-                                                            <Label fx:id="lBlocks" text="0.2" />
+                                                            <Label />
+                                                            <TextField fx:id="fBlocks" prefHeight="63.0" prefWidth="90.0" />
                                                          </children>
                                                       </StackPane>
                                                    </children>
@@ -194,79 +207,25 @@
                                     </HBox>
                                  </children>
                               </AnchorPane>
-                          </items>
+                           </items>
                         </SplitPane>
-                     </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
-          <Tab text="5 Lasts games ">
-               <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                     <children>
-                        <TableView layoutX="-21.0" layoutY="-26.0" prefHeight="401.0" prefWidth="848.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                           <columns>
-                              <TableColumn fx:id="cId1" prefWidth="28.0" text="id" visible="false" />
-                              <TableColumn fx:id="cDate1" prefWidth="140.0" text="Date" />
-                              <TableColumn fx:id="cOppenent1" prefWidth="136.0" text="Oppenent" />
-                              <TableColumn fx:id="cTimeGame1" prefWidth="82.0" text="Time game" />
-                              <TableColumn fx:id="cPoints1" minWidth="0.0" prefWidth="96.0" text="Points" />
-                              <TableColumn fx:id="cFG1" prefWidth="110.0" text="Fields Goals(FG)" />
-                              <TableColumn fx:id="cRebounds1" prefWidth="83.0" text="Rebounds" />
-                              <TableColumn fx:id="cAssists1" prefWidth="60.0" text="Assists" />
-                              <TableColumn fx:id="cShots1" prefWidth="106.0" text="3 points shot made" />
-                           </columns>
-                        </TableView>
-                     </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
-            <Tab text="All matchs">
-               <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                     <children>
-                        <VBox layoutX="10.0" layoutY="4.0" prefHeight="394.0" prefWidth="828.0" spacing="10.0">
+                        <FlowPane hgap="34.0" prefHeight="30.0" prefWidth="255.0">
                            <children>
-                              <Pane prefHeight="102.0" prefWidth="825.0" style="-fx-border-style: solid; -fx-border-radius: 5; -fx-border-color: gray;">
-                                 <children>
-                                    <DatePicker fx:id="dDate" layoutX="35.0" layoutY="45.0" prefHeight="31.0" prefWidth="174.0" />
-                                    <TextField fx:id="fOppenent" layoutX="225.0" layoutY="45.0" prefHeight="31.0" prefWidth="149.0" />
-                                    <Button fx:id="btnGo" layoutX="726.0" layoutY="48.0" mnemonicParsing="false" onAction="#Search" prefHeight="25.0" prefWidth="85.0" text="GO" />
-                                    <Label layoutX="35.0" layoutY="14.0" prefHeight="25.0" prefWidth="68.0" text="Date" />
-                                    <Label layoutX="225.0" layoutY="14.0" prefHeight="25.0" prefWidth="68.0" text="Oppenent" />
-                                    <TextField fx:id="fStart" layoutX="397.0" layoutY="45.0" prefHeight="31.0" prefWidth="45.0" />
-                                    <Label layoutX="415.0" layoutY="14.0" prefHeight="25.0" prefWidth="98.0" text="points between " />
-                                    <Label layoutX="451.0" layoutY="48.0" prefHeight="25.0" prefWidth="26.0" text="and" />
-                                    <TextField fx:id="fEnd" layoutX="477.0" layoutY="45.0" prefHeight="31.0" prefWidth="45.0" />
-                                    <TextField fx:id="fGStart" layoutX="548.0" layoutY="45.0" prefHeight="31.0" prefWidth="45.0" />
-                                    <Label layoutX="566.0" layoutY="14.0" prefHeight="25.0" prefWidth="98.0" text="Field goals" />
-                                    <Label layoutX="602.0" layoutY="48.0" prefHeight="25.0" prefWidth="26.0" text="and" />
-                                    <TextField fx:id="fGEnd" layoutX="642.0" layoutY="45.0" prefHeight="31.0" prefWidth="45.0" />
-                                 </children>
-                              </Pane>
-                              <TableView prefHeight="261.0" prefWidth="828.0">
-                                 <columns>
-                                    <TableColumn fx:id="cId" prefWidth="28.0" text="id" visible="false" />
-                                    <TableColumn fx:id="cDate" prefWidth="140.0" text="Date" />
-                                    <TableColumn fx:id="cOppenent" prefWidth="136.0" text="Oppenent" />
-                                    <TableColumn fx:id="cTimeGame" prefWidth="82.0" text="Time game" />
-                                    <TableColumn fx:id="cPoints" minWidth="0.0" prefWidth="96.0" text="Points" />
-                                    <TableColumn fx:id="cFG" prefWidth="110.0" text="Fields Goals(FG)" />
-                                    <TableColumn fx:id="cRebounds" prefWidth="83.0" text="Rebounds" />
-                                    <TableColumn fx:id="cAssists" prefWidth="60.0" text="Assists" />
-                                    <TableColumn fx:id="cShots" prefWidth="106.0" text="3 points shot made" />
-                                 </columns>
-                              </TableView>
+                              <Button mnemonicParsing="false" onAction="#cancel" prefHeight="30.0" prefWidth="109.0" text="Cancel" />
+                              <Button fx:id="btnSave" mnemonicParsing="false" onAction="#save" prefHeight="30.0" prefWidth="109.0" text="Save" />
                            </children>
-                        </VBox>
+                           <padding>
+                              <Insets left="210.0" />
+                           </padding>
+                        </FlowPane>
                      </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
-        </tabs>
-      </TabPane>
-   </children>
-   <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-   </padding>
-</Pane>
+                  </VBox>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+   </content>
+   <graphic>
+      <AnchorPane prefHeight="454.0" prefWidth="200.0" />
+   </graphic>
+</DialogPane>

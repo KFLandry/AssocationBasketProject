@@ -1,23 +1,30 @@
 package db;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class ClassMedia {
+    public int getId() {
+        return mId;
+    }
     private  int mId;
     private  String mName;
     private  String mDescritption;
-    private Date mDateCreation;
+    private java.sql.Date mDateCreation;
     private int mSize;
     private String mTypeMime;
     private  String mPath;
     private static  ConnexionASdb connexionASdb;
-    public ClassMedia(){
+    private  ClassMedia(){}
+    public ClassMedia(String mPath){
+        this.mDateCreation = java.sql.Date.valueOf(LocalDate.now());
+        this.mPath =  mPath;
+        this.mTypeMime =  "Image/img";
     }
     public static ArrayList<ClassMedia> loadMedia(int id,String assosTable) throws Exception {
         ConnexionASdb connexionASdb = new ConnexionASdb();
-        ArrayList<ClassMedia> tempMedias =  new ArrayList<ClassMedia>();
+        ArrayList<ClassMedia> tempMedias =  new ArrayList<>();
         String sqlReq = "SELECT * FROM ba_media JOIN ba_middlemedia"+assosTable+" ON (ba_media.id=ba_middlemedia"+assosTable+".idmedia) WHERE ba_middlemedia"+assosTable+".id"+assosTable +"="+id;
         Connection connection = connexionASdb.getConnection();
         PreparedStatement statement = connection.prepareStatement(sqlReq);
@@ -26,10 +33,10 @@ public class ClassMedia {
             while (resultSet.next()){
                 ClassMedia temp = new ClassMedia();
                 temp.setId(resultSet.getInt("id"));
-                temp.setDescritption(resultSet.getString("Description"));
-                temp.setDateCreation(resultSet.getDate("dateCreation"));
+                temp.setDescription(resultSet.getString("description"));
+                temp.setDateCreation(resultSet.getDate("dateCreation").toLocalDate());
                 temp.setTypeMime(resultSet.getString("typeMime"));
-                temp.setName(resultSet.getString("Description"));
+                temp.setName(resultSet.getString("description"));
                 temp.setSize(resultSet.getInt("size"));
                 temp.setPath(resultSet.getString("path"));
                 tempMedias.add(temp);
@@ -53,13 +60,11 @@ public class ClassMedia {
     }
     public void setId(int mId){this.mId = mId;}
     public void setName(String mName) {this.mName = mName;}
-    public void setDateCreation(Date mdateCreation){this.mDateCreation = mdateCreation;}
-    public void setDescritption(String mDescritption){this.mDescritption = mDescritption;}
+    public void setDateCreation(LocalDate mdateCreation){this.mDateCreation = Date.valueOf(mdateCreation);}
+    public void setDescription(String mDescription){this.mDescritption = mDescription;}
     public void setTypeMime(String mTypeMime){this.mTypeMime = mTypeMime;}
     public void setSize(int mSize){this.mSize = mSize;}
     public void setPath(String mPath) {this.mPath = mPath;}
-
-    public String getDescritption() {return mDescritption;}
-
+    public String getDescription() {return mDescritption;}
     public String getPath() { return mPath; }
 }

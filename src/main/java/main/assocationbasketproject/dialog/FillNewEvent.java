@@ -1,6 +1,6 @@
 package main.assocationbasketproject.dialog;
 
-import db.ClassCoatch;
+import db.ClassCoach;
 import db.ClassEvent;
 import db.ConnexionASdb;
 import javafx.collections.FXCollections;
@@ -36,11 +36,11 @@ public class FillNewEvent {
     private ComboBox<Integer> cbMinutes;
     @FXML
     private ComboBox<Integer> cbHours;
-    private ClassEvent events;
+    private ClassEvent onePlan;
     private Integer mId;
     public void initialise(LocalDate value,Integer id) throws Exception {
         // initialisation pour creation nouvel event
-        events =  new ClassEvent();
+        onePlan =  new ClassEvent();
         datePicker.setValue(value);
         ObservableList<String> typeList = FXCollections.observableArrayList(Match.name(), Training.name(), Other.name());
         ObservableList<String> importanceList =  FXCollections.observableArrayList(Low.name(),Medium.name(),Hight.name());
@@ -55,18 +55,17 @@ public class FillNewEvent {
         if (id != null){
             mId =  id;
             btnSave.setText("update");
-            cbEvents.setDisable(true);
-            ClassEvent event =  new ClassEvent().getEvent(id);
-            LocalDate initalDate = event.getDatePlanned().toLocalDate();
+            onePlan =  new ClassEvent().getEvent(id);
+            LocalDate initalDate = onePlan.getDatePlanned().toLocalDate();
             datePicker.setValue(initalDate);
-            fSubject.setText(events.getSubject());
-            fSubject.setDisable(true);
-            fDesc.setText(event.getDetails());
-            cbImportance.getSelectionModel().select(event.getImportance().name());
-            cbEvents.getSelectionModel().select(event.getImportance().name());
+            fSubject.setText(onePlan.getSubject());
+            fSubject.setEditable(false);
+            fDesc.setText(onePlan.getDetails());
+            cbImportance.getSelectionModel().select(onePlan.getImportance().name());
+            cbEvents.getSelectionModel().select(onePlan.getType().name());
             cbEvents.setDisable(true);
-            cbHours.getSelectionModel().select(event.getTime().getHours());
-            cbMinutes.getSelectionModel().select(event.getTime().getMinutes());
+            cbHours.getSelectionModel().select(onePlan.getTime().getHours());
+            cbMinutes.getSelectionModel().select(onePlan.getTime().getMinutes());
         }
     }
     @FXML
@@ -75,7 +74,7 @@ public class FillNewEvent {
             LocalTime time =  LocalTime.of(cbHours.getSelectionModel().getSelectedItem(),cbMinutes.getSelectionModel().getSelectedItem());
             String[] fields = {"idCoach","type","subject","importance","datePlanned","time","currentDate","description"};
             String[] values = {
-                    String.valueOf(ClassCoatch.getInstance().getId()),
+                    String.valueOf(ClassCoach.getInstance().getId()),
                     cbEvents.getSelectionModel().getSelectedItem(),
                     fSubject.getText(),
                     cbImportance.getSelectionModel().getSelectedItem(),
@@ -90,7 +89,7 @@ public class FillNewEvent {
                     JOptionPane.showMessageDialog(null,"La modification a échouée!");
                 }
             }else{
-                if (connexionASdb.update(mId,"ba_event",fields,values)  > 0){
+                if (connexionASdb.update(mId,"ba_event",fields,values)  == 0){
                     JOptionPane.showMessageDialog(null,"La modification a échouée!");
                 }
             }

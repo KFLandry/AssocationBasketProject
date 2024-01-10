@@ -77,7 +77,6 @@ public class LoginController implements Initializable {
        }else inpuLogin.requestFocus();
     }
     @FXML
-
     void linkPasCompte(ActionEvent event) throws IOException {
         stackPane.getChildren().removeAll();
         stackPane.getChildren().clear();

@@ -1,6 +1,6 @@
 package main.assocationbasketproject;
 
-import db.ClassCoatch;
+import db.ClassCoach;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -35,20 +35,18 @@ public class DemarrageController{
     private Label lName;
     @FXML
     private Circle circleProfile;
-    private ClassManager manager;
-    private ClassCoatch coatch;
     public void initialise(int id) throws Exception {
-        coatch =  ClassCoatch.getInstance();
-        manager = ClassManager.getUniqueInstance();
-        coatch.setId(id);
+        ClassCoach coach = ClassCoach.getInstance();
+        ClassManager manager = ClassManager.getUniqueInstance();
+        coach.setId(id);
         manager.setId(id);
 
-        String  path = coatch.loadMedia("profile");
+        String  path = coach.loadMedia("profile");
         Image image = new Image(new File(path).toURI().toURL().toExternalForm());
         circleProfile.setFill(new ImagePattern(image));
 
-        coatch.initialiseCoatch();
-        lName.setText(coatch.getName() +" "+coatch.getLastName());
+        coach.initialiseCoatch();
+        lName.setText(coach.getName() +" "+ coach.getLastName());
 
         // Defintion du plan par defaut
 
@@ -63,7 +61,7 @@ public class DemarrageController{
         if (currentBtn.equals(btnHome)){
             fxmlLoader.setLocation(getClass().getResource("homePane.fxml"));
         } else if (currentBtn.equals(btnCategories)) {
-            fxmlLoader.setLocation(getClass().getResource("categories.fxml"));
+            fxmlLoader.setLocation(getClass().getResource("category.fxml"));
         } else if (currentBtn.equals(btnOverView)) {
             fxmlLoader.setLocation(getClass().getResource("overview.fxml"));
         } else if (currentBtn.equals(btnPlayer)) {

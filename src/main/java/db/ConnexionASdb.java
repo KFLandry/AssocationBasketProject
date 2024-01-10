@@ -46,28 +46,53 @@ public class ConnexionASdb {
     public int insert(String table,String[] fields, String[] values) throws SQLException, NoSuchAlgorithmException {
         StringBuilder setValues  = new StringBuilder();
         StringBuilder setFiels = new StringBuilder();
-        for (int i=0;i<fields.length; i++){
-            // Hachage du mot de passe pour table ba_coach
-            if(Objects.equals(table, "ba_coach")){
-                if(fields[i].equals("password")){
-                   values[i] =  hash(values[i]);
+        int idReturn  = 0;
+        if (fields.length == values.length){
+            for (int i=0;i<fields.length; i++){
+                // Hachage du mot de passe pour table ba_coach
+                if(Objects.equals(table, "ba_coach")){
+                    if(fields[i].equals("password")){
+                        values[i] =  hash(values[i]);
+                    }
+                }
+                setFiels.append(fields[i]).append(",");
+                setValues.append("'").append(values[i]).append("',");
+            }
+            setFiels.deleteCharAt((setFiels.length()-1));
+            setValues.deleteCharAt((setValues.length()-1));
+        }else{
+            for (String field : fields) {
+                setFiels.append(field).append(",");
+            }
+            for (int i=0;i< values.length;i++) {
+                if (i==0) {
+                    values[i] = values[i].substring(1);
+                    if (values.length==1) {
+                        values[i] = values[i].substring(0,(values[i].length()-1));
+                        setValues.append(values[i]);
+                    }else setValues.append(values[i]).append(",");
+                } else if (i== (values.length-1)) {
+                    values[i] = values[i].substring(0,(values[i].length()-1));
+                    setValues.append(values[i]);
+                }else {
+                    setValues.append(values[i]).append(",");
                 }
             }
-            setFiels.append(fields[i]).append(",");
-            setValues.append("'").append(values[i]).append("',");
+            setFiels.deleteCharAt((setFiels.length()-1));
         }
-        setFiels.deleteCharAt((setFiels.length()-1));
-        setValues.deleteCharAt((setValues.length()-1));
         String sqlReq = "INSERT INTO "+table+" ("+setFiels+") VALUES ("+setValues+");" ;
-
-        PreparedStatement statement = connection.prepareStatement(sqlReq);
-        return statement.executeUpdate();
+        PreparedStatement statement = connection.prepareStatement(sqlReq,Statement.RETURN_GENERATED_KEYS);
+        int affectRows =  statement.executeUpdate();
+        if (affectRows > 0){
+            sqlReq = "SELECT id FROM "+table+" WHERE id = LAST_INSERT_ID()";
+            ResultSet resultSet =  statement.executeQuery(sqlReq);
+            if(resultSet.next()){ idReturn =  resultSet.getInt("id"); }
+        }
+        return  idReturn;
     }
     public int  delete(String table,int idOcc) throws SQLException {
         String sqlReq = "DELETE FROM "+table+" WHERE id="+idOcc;
         preparedStatement =  connection.prepareStatement(sqlReq);
-      // preparedStatement.setString(1,table);
-      // preparedStatement.setInt(2,idOcc);
         return preparedStatement.executeUpdate();
     }
     public static String hash(String word ) throws NoSuchAlgorithmException {
@@ -75,9 +100,9 @@ public class ConnexionASdb {
         md.update(word.getBytes());
         byte[] byteData = md.digest();
         StringBuilder hexString = new StringBuilder();
-        for (int i=0;i<byteData.length;i++) {
-            String hex=Integer.toHexString(0xff & byteData[i]);
-            if(hex.length()==1) hexString.append('0');
+        for (byte byteDatum : byteData) {
+            String hex = Integer.toHexString(0xff & byteDatum);
+            if (hex.length() == 1) hexString.append('0');
             hexString.append(hex);
         }
         return hexString.toString();
