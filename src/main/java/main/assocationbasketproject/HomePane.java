@@ -1,8 +1,6 @@
 package main.assocationbasketproject;
 
-import db.ClassCoach;
-import db.ClassEvent;
-import db.ConnexionASdb;
+import db.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,15 +19,25 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import main.assocationbasketproject.dialog.FillNewEvent;
+import main.assocationbasketproject.dialog.FillStats;
 import manager.ClassManager;
 import org.controlsfx.control.Notifications;
 import variables.ToastMessage;
 
 import java.net.URL;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.util.*;
 
 public class HomePane implements Initializable {
+    @FXML
+    private Button btnUpdate;
+    @FXML
+    private Button btnUndo;
+    @FXML
+    private Button btnFillStats;
+    @FXML
+    private Button btnClose;
     @FXML
     private DatePicker datePicker;
     @FXML
@@ -59,7 +67,7 @@ public class HomePane implements Initializable {
     @FXML
     private TableColumn<ClassEvent, Date> cDate;
     @FXML
-    private TableColumn<ClassEvent, Date> cTime;
+    private TableColumn<ClassEvent, Time> cTime;
     @FXML
     private TableColumn<ClassEvent, Date> cScheduleAt;
     @FXML
@@ -101,7 +109,6 @@ public class HomePane implements Initializable {
         cbClose.getSelectionModel().select(1);
     }
     void customDatePicker() {
-        datePicker.show();
         // Personnaliser le DatePicker
         TextField customLabel = datePicker.getEditor();
         customLabel.setAlignment(Pos.CENTER);
@@ -182,26 +189,36 @@ public class HomePane implements Initializable {
                 };
             }
         });
+        datePicker.show();
     }
     void handleAction(MouseEvent event){}
     void fillTabs(ArrayList<ClassEvent> events,Boolean search){
         ObservableList<ClassEvent> mList =FXCollections.observableArrayList();
         ObservableList<ClassEvent> oList =FXCollections.observableArrayList();
-        for (ClassEvent event :  events){
-            if(!search){
-                if (event.getType().toString().equals("Other")){
-                    oList.add(event);
-                }else{
+        if (!events.isEmpty()){
+            for (ClassEvent event :  events){
+                if(!search){
+                    if (event.getType().toString().equals("Other")){
+                        oList.add(event);
+                    }else{
+                        mList.add(event);
+                    }
+                }else {
                     mList.add(event);
                 }
-            }else {
-                mList.add(event);
             }
-        }
-        if (!search){
-            tabMatch.setItems(mList);
-            otherTab.setItems(oList);
-        }tabSearch.setItems(mList);
+            if (!search){
+                tabMatch.setItems(mList);
+                otherTab.setItems(oList);
+            }else tabSearch.setItems(mList);
+            disableBtns(false);
+        }else disableBtns(true);
+    }
+    private void disableBtns(boolean b){
+        btnUpdate.setDisable(b);
+        btnUndo.setDisable(b);
+        btnFillStats.setDisable(b);
+        btnClose.setDisable(b);
     }
     @FXML
     void addEvent() throws Exception {
@@ -270,8 +287,44 @@ public class HomePane implements Initializable {
     }
     @FXML
     void search(ActionEvent event) throws Exception {
+        if (dateBegin.getValue()==null && dateEnd.getValue()==null){
+            dateBegin.setValue(LocalDate.parse("2023-05-01"));
+            dateEnd.setValue(LocalDate.parse("2024-05-01"));
+        }
         oneSchedule.search(dateBegin.getValue(),dateEnd.getValue(), cbClose.getSelectionModel().getSelectedItem(),fKeyWord.getText());
         fillTabs(oneSchedule.getEvents(),true);
+    }
+    @FXML
+    void fillStats(ActionEvent event) throws Exception {
+        if (!(tabMatch.getSelectionModel().isEmpty() && otherTab.getSelectionModel().isEmpty())){
+            ClassEvent currentEvent =null;
+            if (!tabMatch.getSelectionModel().isEmpty()) currentEvent = tabMatch.getSelectionModel().getSelectedItem();
+            if (!otherTab.getSelectionModel().isEmpty()) currentEvent = otherTab.getSelectionModel().getSelectedItem();
+            if (currentEvent.getIdTeam() > 0) {
+                ClassManager manager =  ClassManager.getUniqueInstance();
+                manager.loadCaterogies();
+                for (ClassCategory category :manager.getCategories()){
+                    category.initialise();
+                    for (ClassTeam team : category.getTeams()){
+                        if ( currentEvent.getIdTeam() == team.getId()){
+                            manager.setCurrentCategory(category);
+                            category.setCurrentTeam(team);
+                            FXMLLoader fxml =  new FXMLLoader(getClass().getResource("dialog/fillStats.fxml"));
+                            DialogPane dialogPane =  fxml.load();
+                            ((FillStats )fxml.getController()).initialize(currentEvent.getId());
+                            Stage stage =  new Stage();
+                            stage.setScene(new Scene(dialogPane));
+                            stage.showAndWait();
+
+                            oneSchedule.loadEvents(ClassCoach.getInstance().getId(),null,false);
+                            fillTabs(oneSchedule.getEvents(),false);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
     }
     private  void bindColumnsTables(){
         // Je lie les colonnes des tableaux aux propriétes des classes par lesquelles elles seront remplies
@@ -289,7 +342,7 @@ public class HomePane implements Initializable {
         cId.setCellValueFactory(new PropertyValueFactory<>("Id"));
         cDate.setCellValueFactory(new PropertyValueFactory<>("DatePlanned"));
         cTime.setCellValueFactory(new PropertyValueFactory<>("Time"));
-        cScheduleAt.setCellValueFactory(new PropertyValueFactory<>("Id"));
+        cScheduleAt.setCellValueFactory(new PropertyValueFactory<>("CurrentDate"));
         cType.setCellValueFactory(new PropertyValueFactory<>("Type"));
         cImportance.setCellValueFactory(new PropertyValueFactory<>("Importance"));
         cOppenent.setCellValueFactory(new PropertyValueFactory<>("Subject"));

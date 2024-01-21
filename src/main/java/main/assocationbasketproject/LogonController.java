@@ -1,10 +1,11 @@
 package main.assocationbasketproject;
 
+import db.ClassCoach;
 import db.ConnexionASdb;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -17,8 +18,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import javafx.util.Duration;
-import org.controlsfx.control.Notifications;
 import service.ClassGmail;
 import variables.ClassFieldFormat;
 import variables.ToastMessage;
@@ -27,13 +26,21 @@ import javax.mail.MessagingException;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
+import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LogonController {
+public class LogonController implements Initializable {
     @FXML
     private AnchorPane anchorPane;
     @FXML
@@ -82,13 +89,13 @@ public class LogonController {
     private StackPane stackPane;
     @FXML
     private Circle circleProfile;
-
     private int code;
     private  int attemp;
     private ConnexionASdb connexionASdb;
+    private PreparedStatement statement;
     private  String pathImage = "../../../../../../../../../wamp64/www/Cour/Image/IMG_1106.JPG";
     @FXML
-    void CheckEmail(ActionEvent event) throws MessagingException, IOException {
+    void CheckEmail(){
         if (!(Objects.equals(intCodeCheck.getText(), ""))){
             if (Integer.parseInt(intCodeCheck.getText()) == code){
                 intCodeCheck.setStyle("-fx-border-color:green");
@@ -100,30 +107,32 @@ public class LogonController {
                 labelTrace.setText("Code incorrect");
                 attemp++;
             }else{
-                labelTrace.setText("Changer votre email et refaite renvoyer un nouveau code");
+                labelTrace.setText("Changez votre email et refaites renvoyer un nouveau code");
             }
         }
     }
     @FXML
-    void SendEmailCode(ActionEvent event) throws MessagingException, IOException {
-        if (!fEmail.equals("")){
-          code =  ClassGmail.checkEmail(fEmail.getText());
+    void SendEmailCode() throws MessagingException, IOException {
+        if (!fEmail.getText().isEmpty()){
+            ArrayList<String> recipients =  new ArrayList<>();
+            recipients.add(fEmail.getText());
+          code =  ClassGmail.sendEmail("check",null,recipients,null,null);
           btnSubmit.setDisable(false);
         }
     }
     @FXML
-    void Discard(ActionEvent event) throws IOException {
-        LinkHaveAccount(event);
+    void Discard() throws IOException {
+        LinkHaveAccount();
     }
     @FXML
-    void LinkHaveAccount(ActionEvent event) throws IOException {
+    void LinkHaveAccount() throws IOException {
         stackPane.getChildren().removeAll();
         stackPane.getChildren().clear();
         Parent fxml =  FXMLLoader.load(Objects.requireNonNull(getClass().getResource("login.fxml")));
         stackPane.getChildren().add(fxml);
     }
     @FXML
-    void uploadProfile(ActionEvent event) throws IOException {
+    void uploadProfile() throws IOException {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                 "JPG & GIF Images", "jpg", "gif","jpeg");
@@ -138,23 +147,20 @@ public class LogonController {
     @FXML
     void signUp(ActionEvent event) throws Exception {
         if(intAgree.isSelected()){
-            if (!(fName.getText().isEmpty() && fLastName.getText().isEmpty() && fEmail.getText().isEmpty() && fBirthday.getPromptText().isEmpty() && fPhone.getText().isEmpty() && fCountry.getText().isEmpty() && fCity.getText().isEmpty() && fAddress.getText().isEmpty() && fPostal.getText().isEmpty() && fLogin.getText().isEmpty() && fConfirm.getText().isEmpty())){
+            if (!checkFields()){
                 if (labelTrace.getText().equals("Code correct")){
-                    // Insertaion dans la table ba_coach
-                    String[] fields = {"lastName","firstName","email","birth","phone","nationality","city","address","postal","login","password"};
-                    String[] values = {fName.getText(),fLastName.getText(),fEmail.getText(), String.valueOf(fBirthday.getValue()),fPhone.getText(),fCountry.getText(),fCity.getText(),fAddress.getText(),fPostal.getText(),fLogin.getText(),fConfirm.getText()};
-                    connexionASdb =  new ConnexionASdb();
-                  if (connexionASdb.insert("ba_coach",fields,values)>0){
+                    // Insertation dans la table ba_coach
+                  int idCoach =  insertCoach();
+                  if (idCoach>0){
                       // Insert dans la table ba_media dans la table d'associaction
                       int idMedia =  0;
-                      int idCoach =  connexionASdb.insert("ba_coach",fields,values);
                       if (!((ImagePattern) circleProfile.getFill()).getImage().isError()){
                           // Uploader l'image en question dans le repertoire image du Projet
-                            // Path scr  = Paths.get(pathImage.substring(6))// Path desc =  Paths.get("..\\resources\\Image")// Path path = Files.copy(scr,desc.resolve(scr), StandardCopyOption.REPLACE_EXISTING);
+                         copyProfile();
 
-                         fields = new String[]{"description", "typeMime", "dateCreation", "path"};
-                          DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-                         values = new String[]{"profile", "Image", String.valueOf((LocalDateTime.now()).format(f)), (((ImagePattern) circleProfile.getFill()).getImage()).getUrl()};
+                         String[] fields = new String[]{"description", "typeMime", "dateCreation", "path"};
+                         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+                         String[] values = new String[]{"profile", "Image", (LocalDateTime.now()).format(f), (((ImagePattern) circleProfile.getFill()).getImage()).getUrl()};
                          idMedia  =  connexionASdb.insert("ba_media",fields,values);
                          if (idMedia > 0){
                              fields =  new String[]{"idMedia","idCoach"};
@@ -162,27 +168,21 @@ public class LogonController {
                              connexionASdb.insert("ba_middlemediacoach",fields,values);
                          }
                      }
+                     //Initialisation de l'unique instance de Coach;
+                     ClassCoach.getInstance().setId(idCoach);
+                     ((Stage)(((Button) event.getSource()).getScene()).getWindow()).close();
+
                      Stage stage = new Stage();
-                      FXMLLoader fxml =  new FXMLLoader(Objects.requireNonNull(getClass().getResource("demarrage.fxml")));
+                     FXMLLoader fxml =  new FXMLLoader(Objects.requireNonNull(getClass().getResource("demarrage.fxml")));
                      Scene scene  =  new Scene(fxml.load(),1198,740);
                      stage.setScene(scene);
                      stage.setTitle("Association basket App");
-                     //stage.setFullScreen(true);
                      stage.show();
-                     ((DemarrageController) fxml.getController()).initialise(idCoach);
-                 }else System.out.println("L'insertion a échoué");
+
+                 }else JOptionPane.showConfirmDialog(null,"L'insertion a échoué! Consulter les logs pour plus de details","",JOptionPane.ERROR);
                }else labelTrace.setFocusTraversable(true);
-           }else{
-               Notifications.create()
-                       .hideAfter(Duration.millis(3))
-                       .text("Vérifiez que tous les champs soient remplies")
-                       .hideCloseButton()
-                       .position(Pos.CENTER)
-                       .owner(null)
-                       .show();
-               fName.setFocusTraversable(true);
-           }
-       }else intAgree.setFocusTraversable(true);
+           }else ToastMessage.show("Info","Vérifiez que tous les champs soient remplies",4);fName.setFocusTraversable(true);
+       }else ToastMessage.show("Info","Veillez accepter les conditions de l'application",2);
     }
     @FXML
     void checkPassword(KeyEvent event) {
@@ -265,11 +265,59 @@ public class LogonController {
             motif =  "label";
         }else if (currentField.equals(fEmail)){
             motif =  "email";
-        } else if (currentField.equals(fPhone) || currentField.equals(fPostal)) {
+        } else if (currentField.equals(fPhone) || currentField.equals(fPostal) || currentField.equals(intCodeCheck)){
             motif =  "number";
         }else if (currentField.equals(fAddress) || currentField.equals(fPassword) || currentField.equals(fConfirm) ){
             motif =  "text";
         }
         return motif;
+    }
+    private  int insertCoach() throws SQLException, NoSuchAlgorithmException {
+        int idReturn = 0;
+        String sql = "INSERT INTO ba_coach (lastName,firstName,email,birth,phone,nationality,city,address,postal,login,password) VALUES (?,?,?,?,?,?,?,?,?,?,?);";
+        statement =  connexionASdb.getConnection().prepareStatement(sql);
+        statement.setString(1,fName.getText());
+        statement.setString(2,fLastName.getText());
+        statement.setString(3,fEmail.getText());
+        statement.setDate(4, Date.valueOf(fBirthday.getValue()));
+        statement.setInt(5, Integer.parseInt(fPhone.getText()));
+        statement.setString(6,fCountry.getText());
+        statement.setString(7,fCity.getText());
+        statement.setString(8,fAddress.getText());
+        statement.setInt(9, Integer.parseInt(fPostal.getText()));
+        statement.setString(10,fLogin.getText());
+        statement.setString(11,ConnexionASdb.hash(fConfirm.getText()));
+        int affectRows =  statement.executeUpdate();
+        if (affectRows > 0){
+            String sqlReq = "SELECT id FROM ba_coach WHERE id = LAST_INSERT_ID()";
+            ResultSet resultSet =  statement.executeQuery(sqlReq);
+            if(resultSet.next()){ idReturn =  resultSet.getInt("id"); }
+        }
+        return  idReturn;
+    }
+    private  void copyProfile(){
+        // Path scr  = Paths.get(pathImage.substring(6))// Path desc =  Paths.get("..\\resources\\Image")// Path path = Files.copy(scr,desc.resolve(scr), StandardCopyOption.REPLACE_EXISTING);
+    }
+    private  boolean checkFields(){
+        return (fName.getText().isEmpty() &&
+                fLastName.getText().isEmpty() &&
+                fEmail.getText().isEmpty() &&
+                fBirthday.getPromptText().isEmpty() &&
+                fPhone.getText().isEmpty() &&
+                fCountry.getText().isEmpty() &&
+                fCity.getText().isEmpty() &&
+                fAddress.getText().isEmpty() &&
+                fPostal.getText().isEmpty() &&
+                fLogin.getText().isEmpty() &&
+                fConfirm.getText().isEmpty()
+        );
+    }
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        try {
+            connexionASdb = new ConnexionASdb();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

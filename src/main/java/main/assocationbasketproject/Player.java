@@ -1,63 +1,68 @@
 package main.assocationbasketproject;
 
+import db.ClassCategory;
 import db.ClassPlayer;
+import db.ClassStatistique;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
 import manager.ClassManager;
 
-import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 public class Player implements Initializable {
+
+    public Label lVictory;
+    public DatePicker dFrom;
+    public DatePicker dTo;
     @FXML
     private Button btnGo;
     @FXML
-    private TableColumn<ClassPlayer, Integer> cAssists;
+    private TableColumn<ClassStatistique, Integer> cId;
     @FXML
-  private TableColumn<ClassPlayer, LocalDate> cDate;
+    private TableColumn<ClassStatistique, Integer> cIdPlayer;
     @FXML
-    private TableColumn<ClassPlayer, Integer> cFG;
+    private TableColumn<ClassStatistique, String> cAccuracy;
     @FXML
-    private TableColumn<ClassPlayer, Integer> cId;
+    private TableColumn<ClassStatistique, Double> cAssists;
     @FXML
-    private TableColumn<ClassPlayer, Integer> cOppenent;
+    private TableColumn<ClassStatistique, Double> cBLocks;
     @FXML
-    private TableColumn<ClassPlayer, Integer> cPoints;
+    private TableColumn<ClassStatistique, LocalDate> cDate;
     @FXML
-    private TableColumn<ClassPlayer, Integer> cRebounds;
+    private TableColumn<ClassStatistique, String> cFG;
     @FXML
-    private TableColumn<ClassPlayer, Integer> cShots;
+    private TableColumn<ClassStatistique, String> cOppenent;
     @FXML
-    private TableColumn<ClassPlayer, Integer> cTimeGame;
+    private TableColumn<ClassStatistique, Double> cPoints;
+    @FXML
+    private TableColumn<ClassStatistique, Double> cRebounds;
+    @FXML
+    private TableColumn<ClassStatistique,String> cScore;
+    @FXML
+    private TableColumn<ClassStatistique, String> cResults;
+    @FXML
+    private TableColumn<ClassStatistique, Double> cSteals;
+    @FXML
+    private TableColumn<ClassStatistique, Double> cTimeGame;
     @FXML
     private Circle circleProfile;
     @FXML
-    private DatePicker dDate;
-    @FXML
-    private TextField fEnd;
+    private TextField fWords;
     @FXML
     private TextField fSearch;
     @FXML
-    private TextField fGEnd;
-    @FXML
-    private TextField fGStart;
-    @FXML
-    private TextField fOppenent;
-    @FXML
-    private TextField fStart;
+    private Label lAccuracy;
     @FXML
     private Label lAge;
     @FXML
@@ -66,6 +71,10 @@ public class Player implements Initializable {
     private Label lBlocks;
     @FXML
     private Label lCategory;
+    @FXML
+    private Label lFieldsGoals;
+    @FXML
+    private Label lMatchs;
     @FXML
     private Label lName;
     @FXML
@@ -80,18 +89,14 @@ public class Player implements Initializable {
     private Label lSteals;
     @FXML
     private ListView<String> listView;
-    private FilteredList<String> filteredItems;
+    @FXML
+    private  TableView<ClassStatistique>  tabStats;
     private ClassPlayer currentPlayer;
-
+    private FilteredList<String> filteredList;
+    private  ClassManager manager;
     @FXML
-    void fillStats() throws IOException {
-      FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("dialog/fillStats.fxml"));
-      DialogPane dialogPane =  fxmlLoader.load();
-      Stage stage =  new Stage();
-      stage.setScene( new Scene(dialogPane));
-    }
-    @FXML
-    void search() throws SQLException {
+    void searchPlayer() {
+      FilteredList<String>filteredItems =  filteredList;
       fSearch.textProperty().addListener((observable, oldValue, newValue) -> {
         filteredItems.setPredicate(item -> {
           if (newValue == null || newValue.isEmpty()) {
@@ -101,70 +106,124 @@ public class Player implements Initializable {
           return item.toLowerCase().contains(lowerCaseFilter);
         });
       });
+      listView.setItems(null);
       listView.setItems(filteredItems);
+    }
+    @FXML
+    void searchStats() throws Exception {
+        ClassStatistique statistique =  new ClassStatistique();
+        String word  =  fWords.getText().isEmpty() ? "" : fWords.getText();
+        Date to =  dTo.getValue()==null ? Date.valueOf("2024-11-27") : Date.valueOf(dFrom.getValue());
+        Date from =  dFrom.getValue()==null ? Date.valueOf("2023-06-27") : Date.valueOf(dTo.getValue());
+        statistique.search(word, from,to);
+        if (!statistique.getStatistiques().isEmpty()){
+            ObservableList<ClassStatistique> listStats = FXCollections.observableArrayList();
+            listStats.setAll(statistique.getStatistiques());
+            tabStats.setItems(null);
+            bindTabletoClass();
+            tabStats.setItems(listStats);
+        }
     }
     private  void fillPage(int id) throws Exception {
       currentPlayer =  new ClassPlayer(id);
       currentPlayer.initialise();
 
       lName.setText(currentPlayer.getName());
-      lAge.setText(currentPlayer.getAge() + " years");
+      lAge.setText(currentPlayer.getAge() + " years old");
       lNationality.setText(currentPlayer.getCountry());
       lSize.setText(currentPlayer.getHeight() + " / "+ currentPlayer.getWeight());
-      lCategory.setText( "");
-
+      ClassManager manager =  ClassManager.getUniqueInstance();
+      manager.loadCaterogies();
+      for (ClassCategory category : manager.getCategories()){
+          category.initialise();
+          category.getTeams().forEach( classTeam -> {
+              try {
+                  classTeam.initialiseTeam();
+                  if(classTeam.getId() == currentPlayer.getId()){
+                      lCategory.setText(category.getName());
+                      loadStats();
+                  }
+              } catch (Exception e) {
+                  throw new RuntimeException(e);
+              }
+          });
+      }
       Image image =  new Image( currentPlayer.getPathProfile());
       circleProfile.setFill(new ImagePattern(image));
 
       //Charger  les stats
-      //
-
+    }
+    private void  loadStats() throws Exception {
+        ClassStatistique statistique =  new ClassStatistique();
+        statistique.loadStatistiques(currentPlayer.getId());
+        if (!statistique.getStatistiques().isEmpty()){
+            // Remplissage
+            lMatchs.setText(String.valueOf(statistique.getTotalMatch()));
+            lPoints.setText(String.format("%.2f",statistique.getAveragePoints()));
+            lAssits.setText(String.format("%.2f",statistique.getAverageAssists()));
+            lRebounds.setText(String.format("%.2f",statistique.getAverageRebounds()));
+            lSteals.setText(String.format("%.2f",statistique.getAverageSteals()));
+            lBlocks.setText(String.format("%.2f",statistique.getAverageBlocks()));
+            lFieldsGoals.setText(String.format("%.2f",statistique.getFieldsGoals()));
+            lAccuracy.setText(String.format("%.2f",statistique.getAccuraryFromDowntown()));
+            lVictory.setText(String.valueOf(statistique.getTotalVictories()));
+        }else{
+            lMatchs.setText("0");
+            lPoints.setText("0");
+            lAssits.setText("0");
+            lRebounds.setText("0");
+            lSteals.setText("0");
+            lBlocks.setText("0");
+            lFieldsGoals.setText("0");
+            lAccuracy.setText("0");
+            lVictory.setText("0");
+        }
     }
     private void bindTabletoClass(){
-        cAssists.setCellValueFactory(new PropertyValueFactory<>(""));
-        cDate.setCellValueFactory(new PropertyValueFactory<>(""));
-        cFG.setCellValueFactory(new PropertyValueFactory<>(""));
-        cId.setCellValueFactory(new PropertyValueFactory<>(""));
-        cOppenent.setCellValueFactory(new PropertyValueFactory<>(""));
-        cPoints.setCellValueFactory(new PropertyValueFactory<>(""));
-        cRebounds.setCellValueFactory(new PropertyValueFactory<>(""));
-        cShots.setCellValueFactory(new PropertyValueFactory<>(""));
-        cTimeGame.setCellValueFactory(new PropertyValueFactory<>(""));
-    }
-  @Override
-  public void initialize(URL url, ResourceBundle resourceBundle) {
-      try {
-          ClassManager manager = ClassManager.getUniqueInstance();
-          listView.setItems(manager.allPlayers());
-          customListView();
-          filteredItems =  new FilteredList<>(manager.allPlayers(), p -> true);
-      } catch (Exception e) {
-          throw new RuntimeException(e);
+          cId.setCellValueFactory(new PropertyValueFactory<>("Id"));
+          cIdPlayer.setCellValueFactory(new PropertyValueFactory<>("IdPlayer"));
+          cAssists.setCellValueFactory(new PropertyValueFactory<>("Assists"));
+          cDate.setCellValueFactory(new PropertyValueFactory<>("Date"));
+          cFG.setCellValueFactory(new PropertyValueFactory<>("FGPerMatch"));
+          cOppenent.setCellValueFactory(new PropertyValueFactory<>("Oppenent"));
+          cPoints.setCellValueFactory(new PropertyValueFactory<>("Points"));
+          cRebounds.setCellValueFactory(new PropertyValueFactory<>("Rebounds"));
+          cTimeGame.setCellValueFactory(new PropertyValueFactory<>("TimeGame"));
+          cBLocks.setCellValueFactory(new PropertyValueFactory<>("Blocks"));
+          cAccuracy.setCellValueFactory(new PropertyValueFactory<>("AccuraryPerMatch"));
+          cSteals.setCellValueFactory(new PropertyValueFactory<>("Steals"));
+          cScore.setCellValueFactory(new PropertyValueFactory<>("Score"));
+          cResults.setCellValueFactory(new PropertyValueFactory<>("Result"));
       }
-  }
-  private  void customListView(){
-      listView.setCellFactory( cell -> new ListCell<String>(){
-        @Override
-        protected void updateItem(String strings, boolean b) {
-          super.updateItem(strings, b);
-            if (strings!=null){
-              int index = strings.indexOf(',');
-              setText(strings.substring(index+1));
-
-              // Redirection a la methode fillPage()
-              setOnMouseClicked( event -> {
-                  try {
-                      fillPage(Integer.parseInt(strings.substring(0,index)));
-                  } catch (Exception e) {
-                      throw new RuntimeException(e);
-                  }
-              });
-              setGraphic(null);
-            }
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        try {
+            manager = ClassManager.getUniqueInstance();
+            filteredList = new FilteredList<>(manager.allPlayers(), p -> true);
+            customListView();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-      });
-  }
-  @FXML
-  void Search(ActionEvent event) {
-  }
+    }
+    private  void customListView(){
+          listView.setCellFactory( cell -> new ListCell<String>(){
+            @Override
+            protected void updateItem(String strings, boolean b) {
+              super.updateItem(strings, b);
+                if (strings!=null){
+                  int index = strings.indexOf(',');
+                  setText(strings.substring(index+1));
+                  // Redirection à la methode fillPage()
+                  setOnMouseClicked( event -> {
+                      try {
+                          fillPage(Integer.parseInt(strings.substring(0,index)));
+                      } catch (Exception e) {
+                          throw new RuntimeException(e);
+                      }
+                  });
+                  setGraphic(null);
+                }
+            }
+          });
+      }
 }

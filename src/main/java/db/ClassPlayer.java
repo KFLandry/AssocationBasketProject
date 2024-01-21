@@ -31,6 +31,7 @@ public class ClassPlayer implements  Cloneable{
     private  int mWeight;
     private  int mAge;
     private String mPathProfile;
+    public  ClassPlayer(){}
     public ClassPlayer(Integer mId){ this.mId =  mId;}
     public ClassPlayer(int mIdTeam,String mGender,String mFirstName, String mLastName, String mEmail,java.sql.Date mBirthDay,String mCountry,String mCity, String mAddress, int mPostal, int mPhone, int mPhoneEmergency, int mHeight, int mWeight, String mPosition,String mDescription,String pathProfile) {
         this.mIdTeam        = mIdTeam;
@@ -145,9 +146,7 @@ public class ClassPlayer implements  Cloneable{
     public LocalDate getBirthDay() {
         return mBirthDay.toLocalDate();
     }
-    public String getEmail() {
-        return mEmail;
-    }
+    public String getEmail() {return mEmail; }
     public String getDescription() {
         return mDescription;
     }

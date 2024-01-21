@@ -1,5 +1,5 @@
 package main.assocationbasketproject;
-
+import db.ClassCoach;
 import db.ConnexionASdb;
 import db.ReturnCheck;
 import javafx.event.ActionEvent;
@@ -26,7 +26,6 @@ import java.util.ResourceBundle;
 
 import static javafx.scene.paint.Color.GREEN;
 import static javafx.scene.paint.Color.RED;
-
 public class LoginController implements Initializable {
     @FXML
     private RadioButton intAgree;
@@ -42,7 +41,6 @@ public class LoginController implements Initializable {
     private StackPane stackPane;
     @FXML
     void GitHubConect(ActionEvent event) {}
-
     @FXML
     void GoogleConnect(ActionEvent event) {}
     @FXML
@@ -60,16 +58,17 @@ public class LoginController implements Initializable {
          if (result.id > 0 ){
              labelTrace.setText("Correct");
              labelTrace.setTextFill(GREEN);
-                // Recupation du current stage
+
+             //Je ferme la fenêtre courante,je set le coach et j'ouvre la fenêtre principale
+             ClassCoach.getInstance().setId(result.id);
              ((Stage) labelTrace.getScene().getWindow()).close();
+
              Stage stage = new Stage();
              FXMLLoader fxml = new FXMLLoader(Objects.requireNonNull(getClass().getResource("demarrage.fxml")));
              Scene scene = new Scene(fxml.load(),1198,740);
              stage.setTitle("Association basket App");
              stage.setScene(scene);
-             //stage.setFullScreen(true);
              stage.show();
-             ((DemarrageController) fxml.getController()).initialise(result.id);
          }else{
              labelTrace.setText(result.text);
              labelTrace.setTextFill(RED);

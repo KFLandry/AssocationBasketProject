@@ -102,4 +102,8 @@ public class ClassCategory {
     public int getRangeAge(){
         return (mMaxAge + mMinAge)/2;
     }
+    @Override
+    public String toString(){
+        return this.mName;
+    }
 }

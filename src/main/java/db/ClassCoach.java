@@ -11,6 +11,10 @@ public class ClassCoach {
     private int mId;
     private String mName;
     private String mLastName;
+
+    public String getEmail() {return mEmail; }
+
+    private String mEmail;
     private Date mBirthday;
     private int mPhone;
     private String mNationality;
@@ -51,6 +55,7 @@ public class ClassCoach {
                 mId =  resultSet.getInt("id");
                 mName = resultSet.getString("firstName");
                 mLastName = resultSet.getString("lastName");
+                mEmail =  resultSet.getString("email");
                 mBirthday = resultSet.getDate("birth");
                 mPhone =  resultSet.getInt("phone");
                 mNationality = resultSet.getString("nationality");

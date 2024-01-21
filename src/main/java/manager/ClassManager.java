@@ -15,7 +15,7 @@ public class ClassManager {
     private static volatile ClassManager uniqueInstance;
     private int idCoach;
     public ArrayList<ClassCategory> getCategories() {return categories;}
-    private final ArrayList<ClassCategory> categories =  new ArrayList<ClassCategory>();
+    private ArrayList<ClassCategory> categories;
     public ConnexionASdb getConnexionASdb() { return connexionASdb;}
     private ConnexionASdb connexionASdb;
     public ClassCategory getCurrentCategory() { return currentCategorie;}
@@ -23,6 +23,7 @@ public class ClassManager {
     private ClassManager(){}
     public void setId(int id){idCoach=id;}
     public void loadCaterogies() throws Exception {
+        categories =  new ArrayList<>();
         String sqlReq= "SELECT id FROM ba_category WHERE idCoach="+idCoach;
         ResultSet resultSet = connexionASdb.getStatement().executeQuery(sqlReq);
         if(resultSet!= null){
@@ -66,7 +67,7 @@ public class ClassManager {
             int id =  resultSet.getInt("id");
             String name = resultSet.getString("lastName") +" "+ resultSet.getString("firstName");;
             int age = Period.between(resultSet.getDate("birthday").toLocalDate(), LocalDate.now()).getYears();
-            listPLayers.add( String.valueOf(id)+ "," + name +" ("+ String.valueOf(age)+" years)");
+            listPLayers.add(id + "," + name +" ("+ age +" years)");
         }
         return listPLayers;
     }

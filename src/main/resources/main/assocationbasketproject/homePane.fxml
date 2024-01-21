@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<Pane id="pane" prefHeight="734.0" prefWidth="887.0" stylesheets="@style/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.HomePane">
+<Pane id="pane" prefHeight="734.0" prefWidth="887.0" stylesheets="@style/style.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.HomePane">
    <children>
       <DatePicker fx:id="datePicker" editable="false" layoutX="103.0" layoutY="1.0" prefHeight="30.0" prefWidth="682.0" showWeekNumbers="true">
          <opaqueInsets>
@@ -60,17 +48,22 @@
                                           </AnchorPane>
                                           <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="56.0" prefWidth="125.0">
                                              <children>
-                                                <Button layoutX="37.0" layoutY="16.0" mnemonicParsing="false" onAction="#deleteEvent" prefHeight="56.0" prefWidth="125.0" text="Close" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                <Button fx:id="btnClose" layoutX="37.0" layoutY="16.0" mnemonicParsing="false" onAction="#deleteEvent" prefHeight="56.0" prefWidth="125.0" text="Close" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                              </children>
                                           </AnchorPane>
                                           <AnchorPane layoutX="10.0" layoutY="66.0" prefHeight="56.0" prefWidth="125.0">
                                              <children>
-                                                <Button layoutX="37.0" layoutY="16.0" mnemonicParsing="false" onAction="#updateEvent" prefHeight="56.0" prefWidth="125.0" text="Update" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                <Button fx:id="btnFillStats" layoutX="37.0" layoutY="16.0" mnemonicParsing="false" onAction="#fillStats" prefHeight="56.0" prefWidth="125.0" text="Fill stats" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                              </children>
                                           </AnchorPane>
                                           <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="56.0" prefWidth="125.0">
                                              <children>
-                                                <Button mnemonicParsing="false" onAction="#undo" prefHeight="56.0" prefWidth="125.0" text="Undo" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                <Button fx:id="btnUndo" mnemonicParsing="false" onAction="#undo" prefHeight="56.0" prefWidth="125.0" text="Undo" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                             </children>
+                                          </AnchorPane>
+                                          <AnchorPane layoutX="10.0" layoutY="72.0" prefHeight="56.0" prefWidth="125.0">
+                                             <children>
+                                                <Button fx:id="btnUpdate" layoutX="37.0" layoutY="16.0" mnemonicParsing="false" onAction="#updateEvent" prefHeight="56.0" prefWidth="125.0" text="Update" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                              </children>
                                           </AnchorPane>
                                        </children>

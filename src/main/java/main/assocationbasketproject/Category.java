@@ -81,7 +81,7 @@ public class Category implements Initializable {
                 team.initialiseTeam();
                 teamNames.add(team.getName());
             }
-            cbTeam.getItems().clear();
+            cbTeam.setItems(null);
             cbTeam.setItems(teamNames);
             cbTeam.getSelectionModel().selectFirst();
             currentCategory.getTeams().forEach(team -> {
@@ -91,10 +91,9 @@ public class Category implements Initializable {
                     fillTab();
                 }
             });
-            btnUpdateTeam.setDisable(false);
-            btnDeleteTeam.setDisable(false);
+            disableControls(false);
         }else {
-            cbTeam.getItems().clear();
+            cbTeam.setItems(null);
             btnUpdateTeam.setDisable(true);
             btnDeleteTeam.setDisable(true);
         }
@@ -193,6 +192,14 @@ public class Category implements Initializable {
             player.isAvailable(item.getNewValue());
         });
     }
+    private void disableControls(Boolean b){
+        btnUpdateTeam.setDisable(b);
+        btnDeleteTeam.setDisable(b);
+        btnDeleteCategory.setDisable(b);
+        btnUpdateCategory.setDisable(b);
+        cbCategory.setDisable(b);
+        cbTeam.setDisable(b);
+    }
     @FXML
     void fillTab(){
         String teamSelected = cbTeam.getSelectionModel().getSelectedItem();
@@ -201,6 +208,7 @@ public class Category implements Initializable {
                 if(team.getName().equals(teamSelected)){
                     ObservableList<ClassPlayer> listPlayers =  FXCollections.observableArrayList();
                     currentTeam =  team;
+                    currentCategory.setCurrentTeam(team);
                     currentTeam.getPlayers().forEach( player ->{
                         try {
                             player.initialise();
@@ -209,6 +217,7 @@ public class Category implements Initializable {
                             throw new RuntimeException(e);
                         }
                     });
+                    tabPlayers.setItems(null);
                     tabPlayers.setItems(listPlayers);
                 }
             });
@@ -221,22 +230,22 @@ public class Category implements Initializable {
             manager =  ClassManager.getUniqueInstance();
             manager.loadCaterogies();
             categories =  manager.getCategories();
-            ObservableList<String> categoriesName = FXCollections.observableArrayList();
-            for (ClassCategory category : categories) {
-                category.initialise();
-                categoriesName.add(category.getName());
-            }
-            cbCategory.setItems(categoriesName);
-            cbCategory.getSelectionModel().selectFirst();
-
-            // Je set la categorie du moment
-            currentCategory = categories.getFirst();
-            manager.setCurrentCategory(currentCategory);
-            bindsTabsToDatas();
-            fillPage();
+            if (!categories.isEmpty()){
+                ObservableList<String> categoriesName = FXCollections.observableArrayList();
+                for (ClassCategory category : categories) {
+                    category.initialise();
+                    categoriesName.add(category.getName());
+                }
+                cbCategory.setItems(categoriesName);
+                cbCategory.getSelectionModel().selectFirst();
+                // Je set la categorie du moment
+                currentCategory = categories.getFirst();
+                manager.setCurrentCategory(currentCategory);
+                bindsTabsToDatas();
+                fillPage();
+            }else disableControls(true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 }

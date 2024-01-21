@@ -10,26 +10,28 @@ import java.util.Date;
 
 public class ClassEvent {
     private int mId;
+    public int getIdTeam() { return mIdTeam; }
+    public void setIdTeam(int mIdCategory) { this.mIdTeam = mIdCategory;}
+    private int mIdTeam;
+    public String getLocation() {
+        return mLocation;
+    }
+    public void setLocation(String mLocation) {
+        this.mLocation = mLocation;
+    }
+    private String mLocation;
     private  String mName;
+
+    public Date getCurrentDate() {return currentDate;}
+
     private Date currentDate;
     public void setSubject(String mSubject) { this.mSubject = mSubject;}
-
     public void setDatePlanned(java.sql.Date datePlanned) { this.mDatePlanned = datePlanned;}
-
     private String mSubject;
-
     public java.sql.Date getDatePlanned() { return mDatePlanned; }
-
     private java.sql.Date mDatePlanned;
-
-    public Time getTime() {
-        return mTime;
-    }
-
-    public void setTime(Time time) {
-        this.mTime = time;
-    }
-
+    public Time getTime() {  return mTime; }
+    public void setTime(Time time) { this.mTime = time; }
     private Time mTime;
     private  TypeEvent mType;
     private ImportanceEvent mImportance;
@@ -44,9 +46,11 @@ public class ClassEvent {
         ResultSet resultSet = statement.executeQuery();
         if(resultSet.next()){
             temp.setId(resultSet.getInt("id"));
+            temp.setIdTeam(resultSet.getInt("idTeam"));
             temp.setImportance(ImportanceEvent.valueOf(resultSet.getString("importance")));
             temp.setType(TypeEvent.valueOf(resultSet.getString("type")));
             temp.setSubject(resultSet.getString("subject"));
+            temp.setLocation(resultSet.getString("location"));
             temp.setDatePlanned(resultSet.getDate("datePlanned"));
             temp.setTime(resultSet.getTime("time"));
             temp.setCurrentDate(resultSet.getDate("currentDate"));
@@ -66,8 +70,13 @@ public class ClassEvent {
     public ImportanceEvent getImportance() {return mImportance;}
     public String getDetails() {return mDetails;}
     public String getSubject() {return mSubject;}
+    public  ClassEvent loadEvent(int id) throws Exception {
+        ResultSet resultSet =  connexionASdb.getStatement().executeQuery("SELECT * FROM ba_event WHERE id="+id);
+        fillEvents(resultSet);
+        return events.getFirst();
+    }
     public ClassEvent() throws Exception {
-        events =  new ArrayList<ClassEvent>();
+        events =  new ArrayList<>();
         connexionASdb = new ConnexionASdb();}
     public  void loadEvents(int idCoach,LocalDate date,Boolean close) throws Exception {
         PreparedStatement statement = null;
@@ -103,7 +112,7 @@ public class ClassEvent {
         return  nb;
     }
     public void search(LocalDate begin,LocalDate end,Boolean close,String keyWords) throws Exception {
-        String sqlReq =  "SELECT * FROM ba_event WHERE datePlanned BETWEEN ? AND ? AND close=? AND MATCH(ba_event.type, ba_event.subject, ba_event.subject, ba_event.description,ba_event.importance) AGAINST(?) LIMIT 30";
+        String sqlReq =  "SELECT * FROM ba_event WHERE datePlanned BETWEEN ? AND ? AND close=? AND MATCH(ba_event.type, ba_event.location, ba_event.subject,ba_event.description,ba_event.importance) AGAINST(?) LIMIT 30";
         PreparedStatement statement = connexionASdb.getConnection().prepareStatement(sqlReq);
         statement.setDate(1, java.sql.Date.valueOf(begin));
         statement.setDate(2, java.sql.Date.valueOf(end));
@@ -118,11 +127,14 @@ public class ClassEvent {
         while(resultSet.next()){
             ClassEvent temp  = new ClassEvent();
             temp.setId(resultSet.getInt("id"));
+            temp.setIdTeam(resultSet.getInt("idTeam"));
             temp.setImportance(ImportanceEvent.valueOf(resultSet.getString("importance")));
             temp.setType(TypeEvent.valueOf(resultSet.getString("type")));
             temp.setSubject(resultSet.getString("subject"));
+            temp.setLocation(resultSet.getString("location"));
             temp.setDatePlanned(resultSet.getDate("datePlanned"));
             temp.setCurrentDate(resultSet.getDate("currentDate"));
+            temp.setTime(resultSet.getTime("time"));
             temp.setDetails(resultSet.getString("description"));
             temp.setClose(resultSet.getBoolean("close"));
             events.add(temp);

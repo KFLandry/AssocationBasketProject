@@ -33,6 +33,7 @@ public class ClassTeam {
         if(res != null && res.next()){
         //
             this.mId =  res.getInt("id");
+            this.idCategory = res.getInt("idCategory");
             this.mName = res.getString("name");
             this.mGamePlane = res.getString("gamePlan");
             this.mGamePriority = res.getString("gamePriority");
@@ -70,13 +71,16 @@ public class ClassTeam {
     public String getGamePlan() { return mGamePlane;}
     public String getAwards() {return mAwards;}
     public ArrayList<ClassPlayer> getPlayers() {return mPlayers;}
-    @Override
-    public String toString() {
+    public String toString(boolean insert){
         return "(" +
                 " " + String.valueOf(idCategory )+
                 ",'" + mName + '\'' +
                 ",'" + mGamePriority + '\'' +
                 ",'" + mGamePlane + '\'' +
                 ')';
+    }
+    @Override
+    public String toString() {
+        return mName;
     }
 }

@@ -6,6 +6,7 @@ import db.ClassTeam;
 import db.ConnexionASdb;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -16,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LocalDateStringConverter;
 import manager.ClassManager;
@@ -150,7 +152,7 @@ public class FillTeam implements Initializable {
     }
     @FXML
     void add() {
-        // Insertaion dans la table ba_coach
+        // Insertaion dans la table ba_coach et suppression des postes en trop
         if (!(fFName.getText().isEmpty() && fLName.getText().isEmpty() && fEmail.getText().isEmpty() && dBirth.getValue()==null && fCountry.getText().isEmpty() && fCity.getText().isEmpty() && fAddress.getText().isEmpty() && fPostal.getText().isEmpty() && fEPhone.getText().isEmpty() && fPhone.getText().isEmpty() && fHeight.getText().isEmpty() && fWeight.getText().isEmpty() && fDesc.getText().isEmpty())){
             Paint fill = circleProfile.getFill();
             Image image =  null;
@@ -177,7 +179,9 @@ public class FillTeam implements Initializable {
                 );
                 if(Integer.parseInt(fId.getText())>0) temp.setId(Integer.parseInt(fId.getText()));
                 tabPlayer.getItems().add(temp);
-                cbPosition.getItems().removeIf(position -> position.equals(temp.getPosition()));
+                if (tabPlayer.getItems().stream().filter(player -> player.getPosition().equals(temp.getPosition())).toArray().length==2){
+                    cbPosition.getItems().removeIf(position -> position.equals(temp.getPosition()));
+                }
                 emptyFields();
             }else ToastMessage.show("Info","Veillez selectionner une photo de profile",3);
         }else ToastMessage.show("Info","Veillez remplir tous les champs avant de valider!", 3);
@@ -208,7 +212,7 @@ public class FillTeam implements Initializable {
 
     }
     @FXML
-    void save() throws SQLException, NoSuchAlgorithmException {
+    void save(ActionEvent event) throws SQLException, NoSuchAlgorithmException {
         if(!tabPlayer.getItems().isEmpty()){
             String[] fields = {"idTeam","gender","lastName","firstName","email","birthday","description","country","city","address","postal","phone","phoneEmergency","height","weight","position","hurt","available"};
             List<ClassPlayer> listInserts = tabPlayer.getItems().stream().filter(player -> player.getId() == 0).toList();
@@ -224,7 +228,6 @@ public class FillTeam implements Initializable {
                         int idLastMedia = connexionASdb.insert("ba_media",fields,values);
 
                         // Remplissage de la table d'association
-
                         fields =  new String[]{"idMedia","idPlayer"};
                         values = new String[]{String.valueOf(idLastMedia), String.valueOf(idLastPlayerInsert)};
                         connexionASdb.insert("ba_middlemediaplayer",fields,values);
@@ -232,26 +235,45 @@ public class FillTeam implements Initializable {
                     }
                 }
             }
-
-            List<ClassPlayer> listUpdates =  tabPlayer.getItems().stream().filter(player -> player.getId() > 0).toList();
             // Mise à jour des joueurs si changement
-            if (!cloneInitialPlayer.containsAll(tabPlayer.getItems())){
-                cloneInitialPlayer.clear();
-                for (ClassPlayer player : listUpdates){
-                    fields = new String[]{"gender", "lastName", "firstName", "email", "birthday", "description", "country", "city", "address", "postal", "phone", "phoneEmergency", "height", "weight", "position"};
-                    String sValues =  player.toString(true);
-                    values = sValues.split(",");
-
-                    connexionASdb.update(player.getId(),"ba_player",fields,values);
-
-                    fields = new String[]{"description", "typeMime", "path"};
-                    values  = new String[]{"Image de profile","Image",player.getPathProfile()};
-                    if(!player.getMedias().isEmpty()) connexionASdb.update(player.getMedias().getFirst().getId(),"ba_media",fields,values);
-
-                    cloneInitialPlayer.add(player.clone());
+            List<ClassPlayer> listUpdates =  tabPlayer.getItems().stream().filter(player -> player.getId() > 0).toList();
+            int nbMaJ =  0;
+            for(ClassPlayer player: listUpdates){
+                    for (ClassPlayer initialPlayer : cloneInitialPlayer){
+                        if(initialPlayer.getId()==player.getId()){
+                            if (initialPlayer.equals(player)){
+                                nbMaJ++;
+                                fields = new String[]{"gender", "lastName", "firstName", "email", "birthday", "description", "country", "city", "address", "postal", "phone", "phoneEmergency", "height", "weight", "position"};
+                                String sValues =  player.toString(true);
+                                values = sValues.split(",");
+                                connexionASdb.update(player.getId(),"ba_player",fields,values);
+                                fields = new String[]{"description", "typeMime", "path"};
+                                values  = new String[]{"Image de profile","Image",player.getPathProfile()};
+                                if(!initialPlayer.getMedias().isEmpty()){
+                                    connexionASdb.update(player.getMedias().getFirst().getId(),"ba_media",fields,values);
+                                }else {
+                                    int idMedia =connexionASdb.insert("ba_media",fields,values);
+                                    fields = new String[]{"idPlayer", "idMedia"};
+                                    values = new String[]{String.valueOf(player.getId()), String.valueOf(idMedia)};
+                                    connexionASdb.insert("ba_middlemediaplayer",fields,values);
+                                }
+                                cloneInitialPlayer.remove(initialPlayer);
+                                cloneInitialPlayer.add(player.clone());
+                                break;
+                            }
+                        }
+                    }
                 }
-            }else ToastMessage.show("Info","Aucunes modifications n'a été faites",3);
+            if(JOptionPane.showConfirmDialog(null,"Operation terminée.\n "+listInserts.size()+" Insertion(s) et "+nbMaJ+" mise(s) à jour\n Voulez-vous fermer la fenêtre?","Confirm",JOptionPane.YES_NO_OPTION)==0){
+                Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+                stage.close();
+            }
         }
+    }
+    @FXML
+    void cancel(ActionEvent event){
+        Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+        stage.close();
     }
     @FXML
     void saveTitles() {
@@ -319,8 +341,7 @@ public class FillTeam implements Initializable {
     @FXML
     private void addProfile(MouseEvent event){
         JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "JPG & GIF Images", "jpg", "gif","jpeg");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif","jpeg");
         fileChooser.setFileFilter(filter);
         int returnChoose = fileChooser.showOpenDialog(null);
         if (returnChoose ==  JFileChooser.APPROVE_OPTION){
@@ -420,13 +441,17 @@ public class FillTeam implements Initializable {
         ObservableList<String> gender = FXCollections.observableArrayList(new String[]{"Man","Woman"});
         cbGender.setItems(gender);
         cbGender.getSelectionModel().select(currentCategory.getGender());
-
+// J'ajoute les joueurs et supprime les positions déjà prises
         if (!currentTeam.getPlayers().isEmpty()) {
             for (ClassPlayer player : currentTeam.getPlayers()) {
                 player.initialise();
                 cloneInitialPlayer.add(player.clone());
                 listPlayer.add(player);
+                if (cloneInitialPlayer.stream().filter(onePlayer -> onePlayer.getPosition().equals(player.getPosition())).toArray().length==2){
+                    cbPosition.getItems().removeIf(position -> position.equals(player.getPosition()));
+                }
             }
+
         }else{
             btnFill.setDisable(true);
             btnClear.setDisable(true);

@@ -1,28 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.Group?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.effect.DropShadow?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.paint.LinearGradient?>
-<?import javafx.scene.paint.RadialGradient?>
-<?import javafx.scene.paint.Stop?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 
-<StackPane fx:id="stackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="830.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.LogonController">
+<StackPane fx:id="stackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="830.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.LogonController">
    <children>
       <SplitPane dividerPositions="0.11401098901098901" orientation="VERTICAL" prefHeight="730.0" prefWidth="750.0">
          <items>
@@ -65,12 +51,12 @@
                   <PasswordField fx:id="fConfirm" layoutX="63.0" layoutY="576.0" onAction="#confirmPassword" onKeyPressed="#confirmPassword" onKeyTyped="#confirmPassword" onMouseClicked="#handleField" prefHeight="26.0" prefWidth="223.0" />
                   <Label layoutX="62.0" layoutY="552.0" text="Confirm" />
                   <Button layoutX="377.0" layoutY="592.0" mnemonicParsing="false" onAction="#Discard" prefHeight="30.0" prefWidth="139.0" text="Cancel" />
-                  <Button fx:id="btnSignUp" disable="true" layoutX="589.0" layoutY="592.0" mnemonicParsing="false" onAction="#signUp" prefHeight="30.0" prefWidth="139.0" text="Sign up" />
+                  <Button fx:id="btnSignUp" disable="true" layoutX="589.0" layoutY="592.0" mnemonicParsing="false" onAction="#signUp" prefHeight="30.0" prefWidth="139.0" text="Sign up and sign in" />
                   <Group layoutX="335.0" layoutY="351.0">
                      <children>
                         <Pane layoutX="45.0" layoutY="30.0" prefHeight="120.0" prefWidth="349.0" style="-fx-border-style: solid; -fx-border-radius: 5;" styleClass="box">
                            <children>
-                              <PasswordField fx:id="intCodeCheck" layoutX="237.0" layoutY="13.0" prefHeight="26.0" prefWidth="80.0" />
+                              <PasswordField fx:id="intCodeCheck" layoutX="237.0" layoutY="13.0" onAction="#handleText" prefHeight="26.0" prefWidth="80.0" />
                               <Group layoutX="14.0" layoutY="13.0">
                                  <children>
                                     <Label prefHeight="26.0" prefWidth="208.0" text="Enter a code " />

@@ -19,7 +19,6 @@ import org.apache.commons.codec.binary.Base64;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.ByteArrayOutputStream;
@@ -91,13 +90,15 @@ public class ClassGmail {
     public void deleteMail(String id) throws GeneralSecurityException, IOException {
             authorize().users().messages().delete(USER_TEST, id).execute();
     }
-    public Message sendEmail(String toEmailAddress, String subject, String bodyText) throws MessagingException, IOException {
+    public Message sendEmail(ArrayList<String> listOfRecipients, String subject, String bodyText) throws MessagingException, IOException {
            // Create an email
             Properties props = new Properties();
             Session session = Session.getDefaultInstance(props, null);
             MimeMessage email = new MimeMessage(session);
             email.setFrom(new InternetAddress(USER_TEST));
-            email.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(toEmailAddress));
+            for (String address : listOfRecipients){
+                email.addRecipient(javax.mail.Message.RecipientType.TO,new InternetAddress(address));
+            }
             email.setSubject(subject);
             email.setText(bodyText);
 
@@ -127,80 +128,27 @@ public class ClassGmail {
         }
         return message;
     }
-    public  void deleteMail(ArrayList<String> tabID) throws IOException, GeneralSecurityException {
-        for( String id : tabID){
-            authorize().users().messages().delete(USER_TEST,id).execute();
-        }
-    }
-    public static void main(String[] args) throws MessagingException, IOException {
-        ClassGmail gmail = new ClassGmail();
-        gmail.sendEmail("kankeulandry26@gmail.com","Test Envoi d'email'","Loremp ipsum cnsdiub zeibuoaz eziubovazec zeaic");
-    }
-    public static int checkEmail(String toEmailAddress) throws MessagingException, IOException {
-        int SecretCode  = ThreadLocalRandom.current().nextInt(100000,999999+1);
-        String subject =  "Code verification Compte Association Basket";
-        String body  ="<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "  <meta charset=\"UTF-8\">\n" +
-                "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                "  <title>Code de Vérification</title>\n" +
-                "  <style>\n" +
-                "    body {\n" +
-                "      font-family: Arial, sans-serif;\n" +
-                "      background-color: #f4f4f4;\n" +
-                "      margin: 0;\n" +
-                "      padding: 0;\n" +
-                "      text-align: center;\n" +
-                "    }\n" +
-                "\n" +
-                "    .container {\n" +
-                "      background-color: #fff;\n" +
-                "      border-radius: 8px;\n" +
-                "      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\n" +
-                "      padding: 20px;\n" +
-                "      width: 300px;\n" +
-                "      margin: 20px auto;\n" +
-                "    }\n" +
-                "\n" +
-                "    h2 {\n" +
-                "      color: #333;\n" +
-                "    }\n" +
-                "\n" +
-                "    p {\n" +
-                "      color: #555;\n" +
-                "    }\n" +
-                "\n" +
-                "    .verification-code {\n" +
-                "      font-size: 24px;\n" +
-                "      color: #4caf50;\n" +
-                "      font-weight: bold;\n" +
-                "    }\n" +
-                "  </style>\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "  <div class=\"container\">\n" +
-                "    <h2>Code de Vérification</h2>\n" +
-                "    <p>Merci de vérifier votre adresse e-mail en utilisant le code ci-dessous :</p>\n" +
-                "    <p class=\"verification-code\">" + SecretCode + "</p>\n" +
-                "    <p>Si vous n'avez pas demandé cette vérification, veuillez ignorer ce message.</p>\n" +
-                "  </div>\n" +
-                "</body>\n" +
-                "</html>";
+    public static int sendEmail( String style,String from, ArrayList<String> listAddress,String subject,MimeMultipart mimeMultipart) throws MessagingException, IOException {
+        int secretCode = 0;
         // Create an email
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
         MimeMessage email = new MimeMessage(session);
-        email.setFrom(new InternetAddress(USER_TEST));
-        email.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(toEmailAddress));
-        email.setSubject(subject);
 
-        MimeBodyPart htmlPart =  new MimeBodyPart();
-        htmlPart.setContent(body,"text/html");
-        MimeMultipart mp = new MimeMultipart();
-        mp.addBodyPart(htmlPart);
-        email.setContent(mp);
-
+        if (style.equals("check")){
+            subject =  "Code verification Compte Association Basket";
+            secretCode = ThreadLocalRandom.current().nextInt(100000, 999999 + 1);
+            email.setFrom(new InternetAddress(USER_TEST));
+            email.setSubject(subject);
+            email.setContent(Template.confirmEmail(secretCode));
+        }else{
+            email.setFrom(new InternetAddress(from));
+            email.setSubject(subject);
+            email.setContent(mimeMultipart);
+        }
+            for (String address: listAddress){
+                email.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(address));
+            }
         // Create a message for an email
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         email.writeTo(buffer);
@@ -211,8 +159,8 @@ public class ClassGmail {
 
         try {
             // Create send message
-            message = authorize().users().messages().send("me", message).execute();
-            return SecretCode;
+            authorize().users().messages().send("me", message).execute();
+            if (style.equals("check")) return secretCode;
         } catch (GoogleJsonResponseException e) {
             GoogleJsonError error = e.getDetails();
             if (error.getCode() == 403) {
@@ -223,6 +171,6 @@ public class ClassGmail {
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
-        return SecretCode;
+        return secretCode;
     }
 }

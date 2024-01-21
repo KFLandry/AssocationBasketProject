@@ -121,7 +121,7 @@ public class FillCategory implements Initializable {
         if (team != null){
             if (team.getId() == 0 ){
                 String[] fields =  {"idCategory","name","gamePriority","gamePlan"};
-                String[] values =  {team.toString()};
+                String[] values =  {team.toString(true)};
                 int idTeam =  manager.getConnexionASdb().insert("ba_team",fields,values);
                 if (idTeam>0) team.setId(idTeam); else ToastMessage.show("Error","L'insertion a échoué!Consulter les logs",3);
             }
@@ -222,7 +222,7 @@ public class FillCategory implements Initializable {
         if (listTeam.isEmpty()){
             btnDeleteTeam.setDisable(true);
             btnFillTeam.setDisable(true);
-        }else teamTable.setItems(listTeam);
+        }else teamTable.getItems().removeAll(); teamTable.setItems(listTeam);
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
