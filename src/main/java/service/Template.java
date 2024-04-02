@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class Template {
     public static  MimeMultipart notifyPlayer(LocalDateTime dateTime, String oppenent, String coach,String location) throws MessagingException {
-        String body = " <!DOCTYPE html>" +
+        String body = "<!DOCTYPE html>" +
                 "<html lang=en>n" +
                 "<head>" +
                 "  <meta charset=UTF-8>" +
@@ -51,14 +51,13 @@ public class Template {
                 "  <div class= container > " +
                 "    <h2>Convocation au Match du " + dateTime + "  contre " + oppenent + " </h2> " +
                 "    <p>Félicitation le coach " + coach + "  vous a convoqué pour le match du " + dateTime.toLocalDate() + " à " + dateTime.getHour() + "H. Voici les détails :</p> " +
-                "    <p class= match-details >Versus:" + oppenent + "</p>" +
-                "    <p class= match-details >Date/Heure:" + dateTime + "</p> " +
-                "    <p class= match-details >:Lieu" + location + "</p> " +
+                "    <p class= match-details >Versus : " + oppenent + "</p>" +
+                "    <p class= match-details >Date/Heure : " + dateTime + "</p> " +
+                "    <p class= match-details >Lieu : " + location + "</p> " +
                 "    <p>Assurez-vous d'être prêt et de venir soutenir votre équipe!</p> " +
                 "  </div> " +
                 "</body> " +
-                "</html>" +
-                "    }";
+                "</html>";
         MimeBodyPart htmlPart =  new MimeBodyPart();
         htmlPart.setContent(body,"text/html");
         MimeMultipart mp = new MimeMultipart();

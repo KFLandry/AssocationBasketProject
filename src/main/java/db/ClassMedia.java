@@ -3,6 +3,7 @@ package db;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ClassMedia {
     public int getId() {
@@ -17,7 +18,8 @@ public class ClassMedia {
     private  String mPath;
     private static  ConnexionASdb connexionASdb;
     private  ClassMedia(){}
-    public ClassMedia(String mPath){
+    public ClassMedia(int id,String mPath){
+        this.mId = id;
         this.mDateCreation = java.sql.Date.valueOf(LocalDate.now());
         this.mPath =  mPath;
         this.mTypeMime =  "Image/img";
@@ -58,6 +60,18 @@ public class ClassMedia {
         statement.setString(2,setValues.toString());
         statement.executeQuery();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClassMedia that)) return false;
+        return mId == that.mId && mSize == that.mSize && Objects.equals(mPath, that.mPath);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(mId, mSize, mPath);
+    }
+
     public void setId(int mId){this.mId = mId;}
     public void setName(String mName) {this.mName = mName;}
     public void setDateCreation(LocalDate mdateCreation){this.mDateCreation = Date.valueOf(mdateCreation);}

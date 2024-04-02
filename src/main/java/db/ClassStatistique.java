@@ -47,7 +47,12 @@ public class ClassStatistique {
     public ClassStatistique(){}
     public void search(String mWords, Date mFrom, Date  mTo) throws Exception {
         connexionASdb =  new ConnexionASdb();
-        String sql  =  "SELECT * FROM ba_statistique JOIN ba_player ON (idPlayer=ba_player.id) WHERE ba_statistique.date BETWEEN ? AND ? OR MATCH(ba_player.firstName,ba_player.lastName,ba_player.country,ba_player.city,ba_player.address,ba_player.email,ba_player.position) AGAINST (?) OR MATCH(ba_statistique.oppenent) AGAINST (?);";
+        String sql  =  "SELECT * " +
+                "FROM ba_statistique " +
+                "JOIN ba_player ON (idPlayer=ba_player.id) " +
+                "WHERE ba_statistique.date BETWEEN ? " +
+                "AND ? " +
+                "OR MATCH(ba_player.firstName,ba_player.lastName,ba_player.email,ba_player.position) AGAINST (?) OR MATCH(ba_statistique.oppenent) AGAINST (?);";
         PreparedStatement statement =  connexionASdb.getConnection().prepareStatement(sql);
         statement.setDate(1,mFrom);
         statement.setDate(2,mTo);

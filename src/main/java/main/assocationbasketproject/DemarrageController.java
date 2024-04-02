@@ -77,11 +77,9 @@ public class DemarrageController implements Initializable {
             ClassCoach coach = ClassCoach.getInstance();
             ClassManager manager = ClassManager.getUniqueInstance();
             manager.setId(coach.getId());
-
             String path = coach.loadMedia("profile");
-            Image image = new Image(path);
+            Image image = new Image("file:"+path);
             circleProfile.setFill(new ImagePattern(image));
-
             coach.initialiseCoatch();
             lName.setText(coach.getName() + " " + coach.getLastName());
             // Definition du plan par defaut

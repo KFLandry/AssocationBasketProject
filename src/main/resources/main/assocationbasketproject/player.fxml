@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="734.0" prefWidth="887.0" stylesheets="@style/style.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.Player">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="734.0" prefWidth="887.0" stylesheets="@style/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.Player">
    <children>
-      <VBox layoutX="599.0" layoutY="23.0">
-         <children>
-            <TextField fx:id="fSearch" onInputMethodTextChanged="#searchPlayer" onKeyPressed="#searchPlayer" prefHeight="25.0" prefWidth="225.0" />
-            <ListView fx:id="listView" prefHeight="219.0" prefWidth="225.0" style="-fx-border-radius: 0 0 10 0; -fx-border-style: solid; -fx-border-color: gray;" />
-         </children>
-      </VBox>
-      <Button layoutX="833.0" layoutY="23.0" mnemonicParsing="false" onAction="#searchPlayer" prefHeight="25.0" prefWidth="35.0" text="Search" />
+      <VBox layoutX="599.0" layoutY="23.0" />
       <Pane layoutX="27.0" layoutY="60.0" prefHeight="207.0" prefWidth="572.0" style="-fx-border-style: solid; -fx-border-color: gray; -fx-border-radius: 10 10 0 10;">
          <children>
             <Circle fx:id="circleProfile" fill="WHITE" layoutX="99.0" layoutY="104.0" radius="85.0" stroke="BLACK" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" style="-fx-stroke-width: 2;" styleClass="cover-image">
@@ -28,9 +35,10 @@
                      <children>
                         <Label prefHeight="31.0" prefWidth="238.0" text="Nom : " />
                         <Label prefHeight="31.0" prefWidth="238.0" text="Age :" />
-                        <Label prefHeight="31.0" prefWidth="238.0" text="Nationality" />
+                        <Label prefHeight="31.0" prefWidth="238.0" text="Position" />
                         <Label prefHeight="31.0" prefWidth="238.0" text="Size / Weight (cm/kg) : " />
-                        <Label prefHeight="31.0" prefWidth="238.0" text="Category : " />
+                        <Label prefHeight="31.0" prefWidth="238.0" text="Team : " />
+                        <Label layoutX="10.0" layoutY="154.0" prefHeight="31.0" prefWidth="238.0" text="Category : " />
                      </children>
                   </VBox>
                   <VBox prefHeight="175.0" prefWidth="161.0" spacing="5.0">
@@ -43,7 +51,7 @@
                            <font>
                               <Font name="System Bold" size="16.0" />
                            </font></Label>
-                        <Label fx:id="lNationality" prefHeight="31.0" prefWidth="238.0" text="French">
+                        <Label fx:id="lPosition" prefHeight="31.0" prefWidth="238.0" text="Point Guard">
                            <font>
                               <Font name="System Bold" size="18.0" />
                            </font></Label>
@@ -51,10 +59,15 @@
                            <font>
                               <Font name="System Bold" size="18.0" />
                            </font></Label>
-                        <Label fx:id="lCategory" prefHeight="31.0" prefWidth="238.0" text="U18">
+                        <Label fx:id="lTeam" prefHeight="31.0" prefWidth="238.0" text="Team A">
                            <font>
                               <Font name="System Bold" size="18.0" />
                            </font></Label>
+                        <Label fx:id="lCategory" layoutX="10.0" layoutY="154.0" prefHeight="31.0" prefWidth="238.0" text="U18">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
                      </children>
                   </VBox>
                </children>
@@ -382,6 +395,8 @@
             </Tab>
         </tabs>
       </TabPane>
+      <ComboBox fx:id="comboSearch" editable="true" layoutX="619.0" layoutY="60.0" onAction="#fillPage" prefHeight="25.0" prefWidth="249.0" />
+      <Label layoutX="619.0" layoutY="36.0" prefHeight="17.0" prefWidth="120.0" text="Select player" />
    </children>
    <padding>
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

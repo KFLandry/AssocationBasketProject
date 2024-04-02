@@ -16,10 +16,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -27,6 +29,8 @@ import java.util.ResourceBundle;
 import static javafx.scene.paint.Color.GREEN;
 import static javafx.scene.paint.Color.RED;
 public class LoginController implements Initializable {
+    @FXML
+    private RadioButton IntAgree;
     @FXML
     private RadioButton intAgree;
     @FXML
@@ -51,28 +55,32 @@ public class LoginController implements Initializable {
         stackPane.getChildren().setAll(fxml);
     }
     @FXML
-    void btnConnecter(ActionEvent event) throws Exception {
+    void btnConnecter() throws Exception {
        if (!inpuLogin.getText().isEmpty() && !inputPassword.getText().isEmpty()){
-         ConnexionASdb connexionASdb =  new ConnexionASdb();
-         ReturnCheck result = connexionASdb.checkCredentials(inpuLogin.getText(),inputPassword.getText());
-         if (result.id > 0 ){
-             labelTrace.setText("Correct");
-             labelTrace.setTextFill(GREEN);
+           try{
+               ConnexionASdb connexionASdb =  new ConnexionASdb();
+               ReturnCheck result = connexionASdb.checkCredentials(inpuLogin.getText(),inputPassword.getText());
+               if (result.id > 0 ){
+                   labelTrace.setText("Correct");
+                   labelTrace.setTextFill(GREEN);
+                   //Je ferme la fenêtre courante,je set le coach et j'ouvre la fenêtre principale
+                   ClassCoach.getInstance().setId(result.id);
+                   ((Stage) labelTrace.getScene().getWindow()).close();
 
-             //Je ferme la fenêtre courante,je set le coach et j'ouvre la fenêtre principale
-             ClassCoach.getInstance().setId(result.id);
-             ((Stage) labelTrace.getScene().getWindow()).close();
-
-             Stage stage = new Stage();
-             FXMLLoader fxml = new FXMLLoader(Objects.requireNonNull(getClass().getResource("demarrage.fxml")));
-             Scene scene = new Scene(fxml.load(),1198,740);
-             stage.setTitle("Association basket App");
-             stage.setScene(scene);
-             stage.show();
-         }else{
-             labelTrace.setText(result.text);
-             labelTrace.setTextFill(RED);
-         }
+                   Stage stage = new Stage();
+                   FXMLLoader fxml = new FXMLLoader(Objects.requireNonNull(getClass().getResource("demarrage.fxml")));
+                   Scene scene = new Scene(fxml.load(),1198
+                           ,740);
+                   stage.setTitle("Association basket App");
+                   stage.setScene(scene);
+                   stage.show();
+               }else{
+                   labelTrace.setText(result.text);
+                   labelTrace.setTextFill(RED);
+               }
+           }catch (SQLException e){
+               JOptionPane.showConfirmDialog(null,"La connexion au serveur a échoué!\nRassurez-vous que le serveur est bien lancé et reessayez\nDetails : "+e.getMessage(),"Erreur connection : ", JOptionPane.DEFAULT_OPTION);
+           }
        }else inpuLogin.requestFocus();
     }
     @FXML

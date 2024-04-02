@@ -14,11 +14,9 @@ public class ClassCategory {
     private int mMaxAge;
     private int mMinAge;
     private String mGender;
-    private String mAwards;
     private Date mDateCreation;
     private String mStory;
     private int mRangeAge;
-
     public ArrayList<ClassTeam> getTeams() { return mTeams; }
     private ArrayList<ClassTeam> mTeams;
     private ClassTeam mCurrentTeam;
@@ -35,7 +33,6 @@ public class ClassCategory {
                 mName=resultSet.getString("name");
                 mGender=resultSet.getString("gender");
                 mRangeAge=resultSet.getInt("averageAge");
-                //mAwards=resultSet.getString("awards");
                 mDateCreation=resultSet.getDate("dateCreation");
                 mStory=resultSet.getString("story");
                 // On ne charge par entierement l'equipe ici pour optimiser l'app.
@@ -77,9 +74,6 @@ public class ClassCategory {
         connexionASdb.delete("ba_team",mCurrentTeam.getId());
         mTeams.remove(mCurrentTeam);
     }
-    public void setAwards(String mAwards) {
-        this.mAwards = mAwards;
-    }
     public void setId(int mId) { this.mId = mId;}
     public void setName(String mName) {this.mName = mName;}
     public void setCurrentTeam(ClassTeam mCurrentTeam) { this.mCurrentTeam = mCurrentTeam; }
@@ -95,7 +89,6 @@ public class ClassCategory {
     public String getName() { return mName; }
     public int getAge() { return mRangeAge; }
     public String getGender() { return mGender; }
-    public String getAwards() { return mAwards; }
     public Date getDateCreation() { return mDateCreation; }
     public String getStory() {return mStory; }
     public ClassStatistique getStatistique() { return mStatistique; }

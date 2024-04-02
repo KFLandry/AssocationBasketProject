@@ -5,8 +5,9 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.Objects;
 
-public class ClassPlayer implements  Cloneable{
+public class ClassPlayer implements Cloneable {
     private int mId;
     private  int mIdTeam;
     public String getGender() {
@@ -21,53 +22,63 @@ public class ClassPlayer implements  Cloneable{
     private java.sql.Date mBirthDay;
     private  String mEmail;
     private String mDescription;
-    private String mCountry;
-    private String mCity;
-    private String mAddress;
-    private int mPostal;
+    private String mCategory;
     private  int mPhone;
     private  int mPhoneEmergency;
     private  int mHeight;
     private  int mWeight;
-    private  int mAge;
-    private String mPathProfile;
+    private String mTeamName;
+    public String getTeamName() {
+        return mTeamName;
+    }
+    public String getGategoryName() {
+        return mCategoryName;
+    }
+    private String mCategoryName;
     public  ClassPlayer(){}
+    public String getPosition() {return mPosition;}
+    private String mPosition;
+    private  boolean mHurt;
+    private  boolean mAvailable;
+    private ConnexionASdb connexionASdb;
+    private ArrayList<ClassMedia> mMedias = new ArrayList<>();
     public ClassPlayer(Integer mId){ this.mId =  mId;}
-    public ClassPlayer(int mIdTeam,String mGender,String mFirstName, String mLastName, String mEmail,java.sql.Date mBirthDay,String mCountry,String mCity, String mAddress, int mPostal, int mPhone, int mPhoneEmergency, int mHeight, int mWeight, String mPosition,String mDescription,String pathProfile) {
+    public ClassPlayer(int mIdTeam,String mGender,String mFirstName, String mLastName, String mEmail,java.sql.Date mBirthDay,int mPhone, int mPhoneEmergency, int mHeight, int mWeight, String mPosition,String mDescription,int idMedia,String pathProfile) {
         this.mIdTeam        = mIdTeam;
         this.mGender        = mGender;
         this.mFirstName     = mFirstName;
         this.mLastName      = mLastName;
         this.mEmail         = mEmail;
         this.mBirthDay      = mBirthDay;
-        this.mCountry       = mCountry;
-        this.mCity          = mCity;
-        this.mAddress       = mAddress;
-        this.mPostal        = mPostal;
         this.mPhone         = mPhone;
         this.mPhoneEmergency = mPhoneEmergency;
         this.mHeight         = mHeight;
         this.mWeight         = mWeight;
         this.mPosition       = mPosition;
         this.mDescription    =  mDescription;
-        this.mMedias.add(new ClassMedia(pathProfile));
+        this.mMedias.add(new ClassMedia(idMedia,pathProfile));
         this.mAvailable = true;
     }
-    public String getPosition() {return mPosition;}
-    public void setPosition(String mPosition) {
-        this.mPosition = mPosition;
-    }
-    private String mPosition;
-    private  boolean mHurt;
-    private  boolean mAvailable;
-    private ConnexionASdb connexionASdb;
-    private ArrayList<ClassMedia> mMedias = new ArrayList<>();
     public void setId(int mId) { this.mId = mId; }
     public void initialise() throws Exception {
         connexionASdb =  new ConnexionASdb();
-        String sqlReqPlayer="SELECT * FROM ba_player WHERE id="+mId;
+        String sqlQuery = "SELECT " +
+                "ba_player.id, ba_player.idTeam,  ba_player.gender, ba_player.firstName, "+
+                "ba_player.lastName, ba_player.birthday, ba_player.height, ba_player.weight," +
+                "ba_player.position, ba_team.name AS teamName, ba_category.name as categoryName, " +
+                "ba_player.description, ba_player.phone, ba_player.phoneEmergency, ba_player.email, ba_player.hurt, ba_player.available " +
+                "FROM ba_player " +
+                "JOIN ba_team ON ba_player.idTeam = ba_team.id " +
+                "JOIN ba_category ON ba_category.id  = ba_team.idCategory " +
+                "WHERE ba_player.id="+mId+" "+
+                "UNION " +
+                "SELECT " +
+                "id, idTeam, gender, firstName, lastName, birthday, height, weight, position, " +
+                "NULL AS teamName, NULL AS categoryName, description, phone, phoneEmergency, email, hurt, available " +
+                "FROM ba_player " +
+                "WHERE id ="+mId+";"; // Replace ? with your variable
         Statement statementPlayer = connexionASdb.getStatement();
-        ResultSet resultSet = statementPlayer.executeQuery(sqlReqPlayer);
+        ResultSet resultSet = statementPlayer.executeQuery(sqlQuery);
         if(resultSet.next()){
             mId=resultSet.getInt("id");
             mIdTeam=resultSet.getInt("idTeam");
@@ -79,24 +90,19 @@ public class ClassPlayer implements  Cloneable{
             mPhone=resultSet.getInt("phone");
             mPhoneEmergency=resultSet.getInt("phoneEmergency");
             mEmail=resultSet.getString("email");
-            mCountry=resultSet.getString("country");
-            mAddress=resultSet.getString("address");
-            mCity=resultSet.getString("city");
-            mPostal=resultSet.getInt("postal");
             mHeight=resultSet.getInt("height");
             mWeight=resultSet.getInt("weight");
             mPosition=resultSet.getString("position");
             mHurt=resultSet.getBoolean("hurt");
             mAvailable=resultSet.getBoolean("available");
+            mTeamName = resultSet.getString("teamName");
+            mCategoryName = resultSet.getString("categoryName");
             //On charge les medias du joueur
             mMedias =  ClassMedia.loadMedia(mId,"player");
         }
     }
     public void setIdTeam(int mIdTeam) {
         this.mIdTeam = mIdTeam;
-    }
-    public void setAddress(String mAddress) {
-        this.mAddress = mAddress;
     }
     public void setAvailable(boolean mAvailable) {
         this.mAvailable = mAvailable;
@@ -128,15 +134,10 @@ public class ClassPlayer implements  Cloneable{
     public void setPhoneEmergency(int mPhoneEmergency) {
         this.mPhoneEmergency = mPhoneEmergency;
     }
-    public void setPostal(int mPostal) {
-        this.mPostal = mPostal;
-    }
     public void setWeight(int mWeight) {
         this.mWeight = mWeight;
     }
-    public void setMedias() throws Exception { mMedias =  ClassMedia.loadMedia(this.mId,"Team");}
-    public void setCity(String mCity) { this.mCity = mCity;}
-    public void setCountry(String mCountry) { this.mCountry = mCountry;}
+    public void setCountry(String mCategory) { this.mCategory = mCategory;}
     public int getId() { return mId;}
     public int getIdTeam() {return mIdTeam; }
     public int getAge(){ return Period.between(mBirthDay.toLocalDate(), LocalDate.now()).getYears(); }
@@ -150,10 +151,6 @@ public class ClassPlayer implements  Cloneable{
     public String getDescription() {
         return mDescription;
     }
-    public String getAddress() {
-        return mAddress;
-    }
-    public int getPostal() { return mPostal;}
     public int getPhone() {
         return mPhone;
     }
@@ -166,43 +163,41 @@ public class ClassPlayer implements  Cloneable{
     public int getWeight() {
         return mWeight;
     }
-    public String getCity() { return mCity;}
-    public String getCountry() {return mCountry;}
+    public String getCountry() {return mCategory;}
     public Boolean isHurt() { return mHurt; }
     public void isHurt(Boolean b) { mHurt = b; }
     public Boolean isAvailable(){ return mAvailable;}
     public void isAvailable(Boolean b) { mAvailable = b;}
-    public String getPathProfile() {  return (!mMedias.isEmpty()) ? mMedias.getFirst().getPath() : ""; }
+    public String getPathProfile() {return (!mMedias.isEmpty()) ? mMedias.getFirst().getPath() : ""; }
+    public int getIdMedia() {return (!mMedias.isEmpty()) ? mMedias.getFirst().getId() : 0; }
+    public void setPosition(String mPosition) {
+        this.mPosition = mPosition;
+    }
+    public void setMedias() throws Exception { mMedias =  ClassMedia.loadMedia(this.mId,"Team");}
     public ArrayList<ClassMedia> getMedias() {
         return mMedias;
     }
     @Override
     public String toString() {
-        return "(" + mIdTeam +
-                ",'" + mGender + '\'' +
-                ",'" + mLastName + '\'' +
-                ",'" + mFirstName + '\'' +
-                ",'" + mEmail + '\'' +
-                ",'" + mBirthDay +'\'' +
-                ",'" + mDescription + '\'' +
-                ",'" + mCountry + '\'' +
-                ",'" + mCity + '\'' +
-                ",'" + mAddress + '\'' +
-                "," + mPostal +
-                "," + mPhone +
-                "," + mPhoneEmergency +
-                "," + mHeight +
-                "," + mWeight +
-                ",'" + mPosition + '\'' +
-                "," + mHurt +
-                "," + mAvailable +
-                ')';
+        return getName() +" ("+getAge()+"ans)";
+   }
+    public String getString(boolean toUpdate){
+        return mLastName + ',' + mFirstName + ',' +mEmail + ',' +mBirthDay +',' +mDescription + ',' +
+                mPhone +"," + mPhoneEmergency +"," + mHeight +"," + mWeight +"," + mPosition;
     }
-    public String toString(boolean toUpdate){
-        return mGender + ','+ mLastName + ',' + mFirstName + ',' +mEmail + ',' +mBirthDay +',' +mDescription + ',' +
-                 mCountry + ',' +mCity + ',' +mAddress + ',' + mPostal +"," + mPhone +"," + mPhoneEmergency +"," + mHeight +"," + mWeight +
-                "," + mPosition;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClassPlayer player)) return false;
+        return mId == player.mId && mIdTeam == player.mIdTeam && mPhone == player.mPhone && mPhoneEmergency == player.mPhoneEmergency && mHeight == player.mHeight && mWeight == player.mWeight && Objects.equals(mGender, player.mGender) && Objects.equals(mFirstName, player.mFirstName) && Objects.equals(mLastName, player.mLastName) && Objects.equals(mBirthDay, player.mBirthDay) && Objects.equals(mEmail, player.mEmail) && Objects.equals(mDescription, player.mDescription) && Objects.equals(mCategory, player.mCategory) && Objects.equals(mTeamName, player.mTeamName) && Objects.equals(mCategoryName, player.mCategoryName) && Objects.equals(mMedias, player.mMedias);
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mId, mIdTeam, mGender, mFirstName, mLastName, mBirthDay, mEmail, mDescription, mCategory, mPhone, mPhoneEmergency, mHeight, mWeight, mTeamName, mCategoryName, mMedias);
+    }
+
     @Override
     public ClassPlayer clone() {
         try {

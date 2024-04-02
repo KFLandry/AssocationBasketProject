@@ -79,8 +79,8 @@ public class ClassEvent {
         events =  new ArrayList<>();
         connexionASdb = new ConnexionASdb();}
     public  void loadEvents(int idCoach,LocalDate date,Boolean close) throws Exception {
-        PreparedStatement statement = null;
-        String sqlReq = "";
+        PreparedStatement statement;
+        String sqlReq;
         if (date == null){
             sqlReq = "SELECT * FROM ba_event WHERE idCoach="+idCoach+" and close=? LIMIT 30 ";
             statement =  connexionASdb.getConnection().prepareStatement(sqlReq);
@@ -112,7 +112,8 @@ public class ClassEvent {
         return  nb;
     }
     public void search(LocalDate begin,LocalDate end,Boolean close,String keyWords) throws Exception {
-        String sqlReq =  "SELECT * FROM ba_event WHERE datePlanned BETWEEN ? AND ? AND close=? AND MATCH(ba_event.type, ba_event.location, ba_event.subject,ba_event.description,ba_event.importance) AGAINST(?) LIMIT 30";
+        String sqlReq =  "SELECT * FROM ba_event WHERE datePlanned BETWEEN ? AND ? AND close=? " +
+                "AND MATCH(ba_event.type, ba_event.location, ba_event.subject,ba_event.description,ba_event.importance) AGAINST(?) LIMIT 30";
         PreparedStatement statement = connexionASdb.getConnection().prepareStatement(sqlReq);
         statement.setDate(1, java.sql.Date.valueOf(begin));
         statement.setDate(2, java.sql.Date.valueOf(end));

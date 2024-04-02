@@ -57,7 +57,7 @@
                   </VBox>
                </children>
             </HBox>
-            <HBox layoutX="59.0" layoutY="198.0" spacing="65.0">
+            <HBox layoutX="59.0" layoutY="198.0" prefHeight="47.0" prefWidth="401.0" spacing="65.0">
                <children>
                   <VBox prefHeight="47.0" prefWidth="169.0" spacing="5.0">
                      <children>
@@ -65,10 +65,10 @@
                         <TextField fx:id="fSubject" onMouseEntered="#formatFields" prefHeight="25.0" prefWidth="159.0" />
                      </children>
                   </VBox>
-                  <VBox prefHeight="47.0" prefWidth="169.0" spacing="5.0">
+                  <VBox prefHeight="47.0" prefWidth="253.0" spacing="5.0">
                      <children>
                         <Label text="Location" />
-                        <TextField fx:id="fLocation" onMouseEntered="#formatFields" prefHeight="25.0" prefWidth="0.0" />
+                        <ComboBox fx:id="comboLocation" editable="true" prefHeight="25.0" prefWidth="211.0" />
                      </children>
                   </VBox>
                </children>

@@ -16,6 +16,7 @@ module com.example.assocationbasketproject {
     requires java.desktop;
     requires controlsfx;
     requires  com.jfoenix;
+    requires google.maps.services;
 
     opens main.assocationbasketproject to javafx.fxml;
     opens main.assocationbasketproject.dialog to javafx.fxml;

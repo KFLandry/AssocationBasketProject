@@ -5,6 +5,7 @@
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
@@ -71,7 +72,7 @@
       </VBox>
       <HBox layoutX="30.0" layoutY="415.0" prefHeight="318.0" prefWidth="855.0" style="-fx-border-color: gray; -fx-border-radius: 5 5 0 0;">
          <children>
-            <VBox>
+            <VBox alignment="TOP_RIGHT">
                <children>
                   <VBox prefHeight="68.0" prefWidth="148.0">
                      <children>
@@ -89,6 +90,7 @@
                         <ComboBox fx:id="cbStats" onAction="#fillChartTeam" prefHeight="40.0" prefWidth="247.0" style="-fx-background-color: inherit;" />
                      </children>
                   </VBox>
+                  <Button mnemonicParsing="false" onAction="#fillChartTeam" prefHeight="43.0" prefWidth="56.0" text="Refresh" />
                </children>
             </VBox>
             <BarChart fx:id="chartTeam" alternativeColumnFillVisible="true" alternativeRowFillVisible="false" barGap="5.0" categoryGap="5.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendSide="LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="RIGHT_TO_LEFT" prefHeight="318.0" prefWidth="711.0" title="Stat en fonction des joueurs" verticalGridLinesVisible="false" verticalZeroLineVisible="false">

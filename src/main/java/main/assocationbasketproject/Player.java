@@ -1,11 +1,9 @@
 package main.assocationbasketproject;
 
-import db.ClassCategory;
 import db.ClassPlayer;
 import db.ClassStatistique;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -25,8 +23,6 @@ public class Player implements Initializable {
     public Label lVictory;
     public DatePicker dFrom;
     public DatePicker dTo;
-    @FXML
-    private Button btnGo;
     @FXML
     private TableColumn<ClassStatistique, Integer> cId;
     @FXML
@@ -60,7 +56,7 @@ public class Player implements Initializable {
     @FXML
     private TextField fWords;
     @FXML
-    private TextField fSearch;
+    private ComboBox<ClassPlayer> comboSearch;
     @FXML
     private Label lAccuracy;
     @FXML
@@ -72,13 +68,15 @@ public class Player implements Initializable {
     @FXML
     private Label lCategory;
     @FXML
+    private Label lTeam;
+    @FXML
     private Label lFieldsGoals;
     @FXML
     private Label lMatchs;
     @FXML
     private Label lName;
     @FXML
-    private Label lNationality;
+    private Label lPosition;
     @FXML
     private Label lPoints;
     @FXML
@@ -88,32 +86,15 @@ public class Player implements Initializable {
     @FXML
     private Label lSteals;
     @FXML
-    private ListView<String> listView;
-    @FXML
     private  TableView<ClassStatistique>  tabStats;
     private ClassPlayer currentPlayer;
-    private FilteredList<String> filteredList;
+    private ObservableList<ClassPlayer> filteredList;
     private  ClassManager manager;
-    @FXML
-    void searchPlayer() {
-      FilteredList<String>filteredItems =  filteredList;
-      fSearch.textProperty().addListener((observable, oldValue, newValue) -> {
-        filteredItems.setPredicate(item -> {
-          if (newValue == null || newValue.isEmpty()) {
-            return true;
-          }
-          String lowerCaseFilter = newValue.toLowerCase();
-          return item.toLowerCase().contains(lowerCaseFilter);
-        });
-      });
-      listView.setItems(null);
-      listView.setItems(filteredItems);
-    }
     @FXML
     void searchStats() throws Exception {
         ClassStatistique statistique =  new ClassStatistique();
         String word  =  fWords.getText().isEmpty() ? "" : fWords.getText();
-        Date to =  dTo.getValue()==null ? Date.valueOf("2024-11-27") : Date.valueOf(dFrom.getValue());
+        Date to =  dTo.getValue()==null ? Date.valueOf(LocalDate.now()) : Date.valueOf(dFrom.getValue());
         Date from =  dFrom.getValue()==null ? Date.valueOf("2023-06-27") : Date.valueOf(dTo.getValue());
         statistique.search(word, from,to);
         if (!statistique.getStatistiques().isEmpty()){
@@ -124,34 +105,27 @@ public class Player implements Initializable {
             tabStats.setItems(listStats);
         }
     }
-    private  void fillPage(int id) throws Exception {
-      currentPlayer =  new ClassPlayer(id);
-      currentPlayer.initialise();
-
-      lName.setText(currentPlayer.getName());
-      lAge.setText(currentPlayer.getAge() + " years old");
-      lNationality.setText(currentPlayer.getCountry());
-      lSize.setText(currentPlayer.getHeight() + " / "+ currentPlayer.getWeight());
-      ClassManager manager =  ClassManager.getUniqueInstance();
-      manager.loadCaterogies();
-      for (ClassCategory category : manager.getCategories()){
-          category.initialise();
-          category.getTeams().forEach( classTeam -> {
-              try {
-                  classTeam.initialiseTeam();
-                  if(classTeam.getId() == currentPlayer.getId()){
-                      lCategory.setText(category.getName());
-                      loadStats();
-                  }
-              } catch (Exception e) {
-                  throw new RuntimeException(e);
-              }
-          });
-      }
-      Image image =  new Image( currentPlayer.getPathProfile());
-      circleProfile.setFill(new ImagePattern(image));
-
-      //Charger  les stats
+    @FXML
+    void fillPage() throws Exception {
+        if(comboSearch.getValue() !=null && comboSearch.getValue().getId() >0){
+            currentPlayer = new ClassPlayer(comboSearch.getValue().getId());
+            currentPlayer.initialise();
+            comboSearch.getEditor().setText(currentPlayer.getName() + "("+currentPlayer.getAge()+"ans)");
+            lName.setText(currentPlayer.getName());
+            lAge.setText(currentPlayer.getAge() + " years old");
+            lPosition.setText(currentPlayer.getPosition());
+            lTeam.setText(currentPlayer.getTeamName());
+            lSize.setText(currentPlayer.getHeight() + " / "+ currentPlayer.getWeight());
+            lCategory.setText(currentPlayer.getGategoryName());
+            if (!currentPlayer.getPathProfile().isEmpty()){
+                Image image =  new Image("file:"+currentPlayer.getPathProfile());
+                if(!image.isError()) {
+                    circleProfile.setFill(new ImagePattern(image));
+                }
+            }
+            //Les stats
+            loadStats();
+        }
     }
     private void  loadStats() throws Exception {
         ClassStatistique statistique =  new ClassStatistique();
@@ -199,31 +173,10 @@ public class Player implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
             manager = ClassManager.getUniqueInstance();
-            filteredList = new FilteredList<>(manager.allPlayers(), p -> true);
-            customListView();
+            filteredList = FXCollections.observableList(manager.allPlayers());
+            comboSearch.setItems(filteredList);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    private  void customListView(){
-          listView.setCellFactory( cell -> new ListCell<String>(){
-            @Override
-            protected void updateItem(String strings, boolean b) {
-              super.updateItem(strings, b);
-                if (strings!=null){
-                  int index = strings.indexOf(',');
-                  setText(strings.substring(index+1));
-                  // Redirection à la methode fillPage()
-                  setOnMouseClicked( event -> {
-                      try {
-                          fillPage(Integer.parseInt(strings.substring(0,index)));
-                      } catch (Exception e) {
-                          throw new RuntimeException(e);
-                      }
-                  });
-                  setGraphic(null);
-                }
-            }
-          });
-      }
 }

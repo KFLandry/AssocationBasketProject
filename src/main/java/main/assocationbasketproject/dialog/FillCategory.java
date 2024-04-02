@@ -25,7 +25,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 public class FillCategory implements Initializable {
@@ -34,8 +33,6 @@ public class FillCategory implements Initializable {
     @FXML
     private Button btnFillTeam;
     private Boolean isUpdate;
-    @FXML
-    private DatePicker fDate;
     @FXML
     private ComboBox<String> cbGender;
     @FXML
@@ -71,7 +68,7 @@ public class FillCategory implements Initializable {
     @FXML
     void addTeam(ActionEvent event) throws Exception {
         if (btnSave.isDisable()){
-            if (!(fName.getText().isEmpty() && fDate.getValue()==null  && fMinAge.getText().isEmpty() && fMaxAge.getText().isEmpty())){
+            if (!(fName.getText().isEmpty() && fMinAge.getText().isEmpty() && fMaxAge.getText().isEmpty())){
                 if(JOptionPane.showConfirmDialog(null,"Attention! Après confirmation vous ne pourrez plus moditfier les informations de la categorie","Confirm", JOptionPane.YES_NO_OPTION)==0){
                     if(currentCategory == null){
                         currentCategory = getClassCategory();
@@ -95,8 +92,8 @@ public class FillCategory implements Initializable {
     private ClassCategory getClassCategory() throws Exception {
         // Enregistrement de la categorie
         int rangeAge = (Integer.parseInt(fMaxAge.getText())+Integer.parseInt(fMinAge.getText()))/2;
-        String[] fields =  {"idCoach","name","gender","dateCreation","story","averageAge"};
-        String[] values =  {String.valueOf(ClassCoach.getInstance().getId()),fName.getText(),cbGender.getSelectionModel().getSelectedItem(), String.valueOf(fDate.getValue()),fStory.getText(), String.valueOf(rangeAge)};
+        String[] fields =  {"idCoach","name","gender","story","averageAge"};
+        String[] values =  {String.valueOf(ClassCoach.getInstance().getId()),fName.getText(),cbGender.getSelectionModel().getSelectedItem(),fStory.getText(), String.valueOf(rangeAge)};
         return new ClassCategory(fields,values);
     }
     @FXML
@@ -125,7 +122,10 @@ public class FillCategory implements Initializable {
                 int idTeam =  manager.getConnexionASdb().insert("ba_team",fields,values);
                 if (idTeam>0) team.setId(idTeam); else ToastMessage.show("Error","L'insertion a échoué!Consulter les logs",3);
             }
+            // C'est avec les propriétés current*** que les states sont partagés dans l'application
             currentCategory.setCurrentTeam(team);
+            manager.setCurrentCategory(currentCategory);
+            //
             Path path = Path.of("fillTeam.fxml");
             FXMLLoader fxml = new FXMLLoader(getClass().getResource(path.toString()));
             DialogPane dialogPane  =  fxml.load();
@@ -140,21 +140,11 @@ public class FillCategory implements Initializable {
     void save(ActionEvent event) throws SQLException, NoSuchAlgorithmException {
         String[] fields =  {"idCategory","name","gamePriority","gamePlan"};
         String[] values = teamTable.getItems().stream().map(ClassTeam::toString).toArray(String[]::new);
-        if (!isUpdate){
-            int rowAffected =  manager.getConnexionASdb().insert("ba_team",fields,values);
-            if (rowAffected > 0){
-                ToastMessage.show("","Opération terminée",3);
-            }else {
-                System.out.println("Consulter les logs l'insertion a échoué");
-            }
-        }else {
+        if (isUpdate){
             int rowAffected =  manager.getConnexionASdb().update(currentCategory.getId(),"ba_team",fields,values);
-            if (rowAffected > 0){
-                ToastMessage.show("","Opération terminée",3);
-            }else {
-                System.out.println("Consulter les logs!!! La mise à jour a échoué");
-            }
+            if (rowAffected > 0){ ToastMessage.show("","Opération terminée",3);}
         }
+        ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
     }
     @FXML
     void formatField(MouseEvent event){
@@ -168,8 +158,6 @@ public class FillCategory implements Initializable {
             motif =  "label";
         } else if (textField.equals(fMaxAge) || textField.equals(fMinAge) ) {
             motif =  "number";
-        }else if (textField.equals(fStory)){
-            motif =  "text";
         }
         return motif;
     }
@@ -184,21 +172,23 @@ public class FillCategory implements Initializable {
         cGamePlan.setCellFactory(TextFieldTableCell.forTableColumn());
 
         cName.setOnEditCommit(event -> {
+            isUpdate = true;
             ClassTeam team = event.getRowValue();
             team.setName(event.getNewValue());
         });
         cGamePriority.setOnEditCommit(event -> {
+            isUpdate = true;
             ClassTeam team = event.getRowValue();
             team.setGamePriority(event.getNewValue());
         });
         cGamePlan.setOnEditCommit(event -> {
+            isUpdate = true;
             ClassTeam team = event.getRowValue();
             team.setGamePlan(event.getNewValue());
         });
     }
     private void disableFields(){
         fName.setDisable(true);
-        fDate.setDisable(true);
         fStory.setDisable(true);
         cbGender.setDisable(true);
         fMaxAge.setDisable(true);
@@ -207,15 +197,10 @@ public class FillCategory implements Initializable {
         btnFillTeam.setDisable(false);
         btnDeleteTeam.setDisable(false);
     }
-    @FXML
-    private void selectTeam(MouseEvent event){
-
-    }
     private void fillPage(){
         ClassCategory current =  manager.getCurrentCategory();
         fName.setText(current.getName());
         fStory.setText(current.getStory());
-        fDate.setValue(LocalDate.parse(current.getDateCreation().toString()));
         cbGender.getSelectionModel().select(current.getGender());
 
         listTeam.addAll(current.getTeams());

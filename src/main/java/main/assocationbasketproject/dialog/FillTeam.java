@@ -26,9 +26,18 @@ import variables.ToastMessage;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
@@ -36,6 +45,8 @@ import java.util.*;
 public class FillTeam implements Initializable {
     @FXML
     public TextField fId;
+    @FXML
+    public TextField fIdMedia;
     @FXML
     private Button btnClear;
     @FXML
@@ -49,29 +60,11 @@ public class FillTeam implements Initializable {
     @FXML
     private Circle circleProfile;
     @FXML
-    private ChoiceBox<String> cbAddress;
-    @FXML
-    private ChoiceBox<String> cbCity;
-    @FXML
-    private ChoiceBox<Integer> cbCodeEPhone;
-    @FXML
-    private ChoiceBox<Integer> cbCodePhone;
-    @FXML
-    private ChoiceBox<Integer> cbCountry;
-    @FXML
     private ComboBox<String> cbGender;
     @FXML
     private ComboBox<String> cbPosition;
     @FXML
-    private ChoiceBox<Integer> cbPostal;
-    @FXML
     private DatePicker dBirth;
-    @FXML
-    private TextField fAddress;
-    @FXML
-    private TextField fCity;
-    @FXML
-    private TextField fCountry;
     @FXML
     private TextArea fDesc;
     @FXML
@@ -109,6 +102,8 @@ public class FillTeam implements Initializable {
     @FXML
     private TableColumn<ClassPlayer,Integer> cIdTeam;
     @FXML
+    private TableColumn<ClassPlayer,Integer> cIdMedia;
+    @FXML
     private TableColumn<ClassPlayer,String> cFirstName;
     @FXML
     private TableColumn<ClassPlayer,String> cLastName;
@@ -116,14 +111,6 @@ public class FillTeam implements Initializable {
     private TableColumn<ClassPlayer,String> cEmail;
     @FXML
     private TableColumn<ClassPlayer, LocalDate> cBirthDay;
-    @FXML
-    private TableColumn<ClassPlayer,String> cCountry;
-    @FXML
-    private TableColumn<ClassPlayer,String> cCity;
-    @FXML
-    private TableColumn<ClassPlayer,String> cAddress;
-    @FXML
-    private TableColumn<ClassPlayer,Integer> cPostal;
     @FXML
     private TableColumn<ClassPlayer,Integer> cPhone;
     @FXML
@@ -146,14 +133,14 @@ public class FillTeam implements Initializable {
     private ClassPlayer currentPlayer;
     private final Queue<ClassPlayer> playerQueue =  new ArrayDeque<>();
     @FXML
-    void editPlayer(){
+    void editPlayer() throws URISyntaxException {
         currentPlayer =  tabPlayer.getSelectionModel().getSelectedItem();
         formatInFields();
     }
     @FXML
-    void add() {
+    void add() throws MalformedURLException {
         // Insertaion dans la table ba_coach et suppression des postes en trop
-        if (!(fFName.getText().isEmpty() && fLName.getText().isEmpty() && fEmail.getText().isEmpty() && dBirth.getValue()==null && fCountry.getText().isEmpty() && fCity.getText().isEmpty() && fAddress.getText().isEmpty() && fPostal.getText().isEmpty() && fEPhone.getText().isEmpty() && fPhone.getText().isEmpty() && fHeight.getText().isEmpty() && fWeight.getText().isEmpty() && fDesc.getText().isEmpty())){
+        if (!(fFName.getText().isEmpty() && fLName.getText().isEmpty() && fEmail.getText().isEmpty() && dBirth.getValue()==null && fEPhone.getText().isEmpty() && fPhone.getText().isEmpty() && fHeight.getText().isEmpty() && fWeight.getText().isEmpty() && fDesc.getText().isEmpty())){
             Paint fill = circleProfile.getFill();
             Image image =  null;
             if (fill instanceof ImagePattern) image =  ((ImagePattern) fill).getImage();
@@ -165,19 +152,18 @@ public class FillTeam implements Initializable {
                         fLName.getText(),
                         fEmail.getText(),
                         Date.valueOf(dBirth.getValue()),
-                        fCountry.getText(),
-                        fCity.getText(),
-                        fAddress.getText(),
-                        Integer.parseInt(fPostal.getText()),
                         Integer.parseInt(fEPhone.getText()),
                         Integer.parseInt(fPhone.getText()),
                         Integer.parseInt(fHeight.getText()),
                         Integer.parseInt(fWeight.getText()),
                         cbPosition.getSelectionModel().getSelectedItem(),
                         fDesc.getText(),
-                        image.getUrl()
+                        //Les informations du l'image de profile
+                        fIdMedia.getText().isEmpty() ?0:Integer.parseInt(fIdMedia.getText()),
+                        image.getUrl().split(":")[1]
                 );
-                if(Integer.parseInt(fId.getText())>0) temp.setId(Integer.parseInt(fId.getText()));
+                //Je recupere l'id du joueur si present
+                if(Integer.parseInt(fId.getText().isEmpty()? "0":fId.getText())>0) temp.setId(Integer.parseInt(fId.getText()));
                 tabPlayer.getItems().add(temp);
                 if (tabPlayer.getItems().stream().filter(player -> player.getPosition().equals(temp.getPosition())).toArray().length==2){
                     cbPosition.getItems().removeIf(position -> position.equals(temp.getPosition()));
@@ -192,10 +178,6 @@ public class FillTeam implements Initializable {
         fLName.setText("");
         fEmail.setText("");
         dBirth.setValue(LocalDate.now());
-        fCountry.setText("");
-        fCity.setText("");
-        fAddress.setText("");
-        fPostal.setText("");
         fEPhone.setText("");
         fPhone.setText("");
         fHeight.setText("");
@@ -208,62 +190,96 @@ public class FillTeam implements Initializable {
         btnClear.setDisable(false);
         btnDelete.setDisable(false);
         btnUndo.setDisable(false);
-
-
     }
     @FXML
-    void save(ActionEvent event) throws SQLException, NoSuchAlgorithmException {
+    void save(ActionEvent event) throws SQLException, NoSuchAlgorithmException, IOException, URISyntaxException {
         if(!tabPlayer.getItems().isEmpty()){
-            String[] fields = {"idTeam","gender","lastName","firstName","email","birthday","description","country","city","address","postal","phone","phoneEmergency","height","weight","position","hurt","available"};
+            String[] fields = {"idTeam","gender","lastName","firstName","email","birthday","description","phone","phoneEmergency","height","weight","position","hurt","available"};
+            //On récupére les nouveaux joueurs qui seront inserés
+            String[] values = new String[]{};
             List<ClassPlayer> listInserts = tabPlayer.getItems().stream().filter(player -> player.getId() == 0).toList();
             //Insertions des joueurs
-            String[] values  = listInserts.stream().map(ClassPlayer::toString).toArray(String[]::new);
-            if (values.length>0){
-                int idLastPlayerInsert =  connexionASdb.insert("ba_player",fields,values);
-                if (idLastPlayerInsert > 0){
-                    for (ClassPlayer player : listInserts){
-                        player.setId(idLastPlayerInsert);
-                        fields = new String[]{"description", "typeMime", "dateCreation", "path"};
-                        values  = new String[]{"Image de profile","Image",String.valueOf(dBirth.getValue()),player.getPathProfile()};
-                        int idLastMedia = connexionASdb.insert("ba_media",fields,values);
-
-                        // Remplissage de la table d'association
-                        fields =  new String[]{"idMedia","idPlayer"};
-                        values = new String[]{String.valueOf(idLastMedia), String.valueOf(idLastPlayerInsert)};
-                        connexionASdb.insert("ba_middlemediaplayer",fields,values);
-                        idLastPlayerInsert--;
+            if (!listInserts.isEmpty()){
+                String sql="INSERT INTO ba_player (idTeam,gender,lastName,firstName,email,birthday,description,phone,phoneEmergency,height,weight,position) " +
+                           "VALUES (?,?,?,?,?,?,?,?,?,?,?,?);";
+                PreparedStatement statement =  this.connexionASdb.getConnection().prepareStatement(sql);
+                listInserts.forEach(player-> {
+                    try {
+                        statement.setInt(1,player.getIdTeam());
+                        statement.setString(2, player.getGender());
+                        statement.setString(3, player.getLastName());
+                        statement.setString(4, player.getFirstName());
+                        statement.setString(5, player.getEmail());
+                        statement.setDate(6, Date.valueOf(player.getBirthDay()));
+                        statement.setString(7, player.getDescription());
+                        statement.setInt(8, player.getPhone());
+                        statement.setInt(9, player.getPhoneEmergency());
+                        statement.setInt(10, player.getHeight());
+                        statement.setInt(11, player.getWeight());
+                        statement.setString(12, player.getPosition());
+                        statement.addBatch();
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
                     }
-                }
-            }
-            // Mise à jour des joueurs si changement
-            List<ClassPlayer> listUpdates =  tabPlayer.getItems().stream().filter(player -> player.getId() > 0).toList();
-            int nbMaJ =  0;
-            for(ClassPlayer player: listUpdates){
-                    for (ClassPlayer initialPlayer : cloneInitialPlayer){
-                        if(initialPlayer.getId()==player.getId()){
-                            if (initialPlayer.equals(player)){
-                                nbMaJ++;
-                                fields = new String[]{"gender", "lastName", "firstName", "email", "birthday", "description", "country", "city", "address", "postal", "phone", "phoneEmergency", "height", "weight", "position"};
-                                String sValues =  player.toString(true);
-                                values = sValues.split(",");
-                                connexionASdb.update(player.getId(),"ba_player",fields,values);
-                                fields = new String[]{"description", "typeMime", "path"};
-                                values  = new String[]{"Image de profile","Image",player.getPathProfile()};
-                                if(!initialPlayer.getMedias().isEmpty()){
-                                    connexionASdb.update(player.getMedias().getFirst().getId(),"ba_media",fields,values);
-                                }else {
-                                    int idMedia =connexionASdb.insert("ba_media",fields,values);
-                                    fields = new String[]{"idPlayer", "idMedia"};
-                                    values = new String[]{String.valueOf(player.getId()), String.valueOf(idMedia)};
-                                    connexionASdb.insert("ba_middlemediaplayer",fields,values);
-                                }
-                                cloneInitialPlayer.remove(initialPlayer);
-                                cloneInitialPlayer.add(player.clone());
-                                break;
+
+                });
+                int[] result = statement.executeBatch();
+                if (result.length> 0){
+                    sql = "SELECT id FROM ba_player WHERE id=LAST_INSERT_ID()";
+                    ResultSet resultSet = statement.executeQuery(sql);
+                    if (resultSet.next()){
+                        int idLastPlayerInsered =  resultSet.getInt("id");
+                        if (idLastPlayerInsered > 0){
+                            for (ClassPlayer player : listInserts){
+                                player.setId(idLastPlayerInsered);
+                                fields = new String[]{"description", "typeMime", "dateCreation", "path"};
+                                values  = new String[]{"Image de profile","Image",String.valueOf(dBirth.getValue()),player.getPathProfile()};
+                                int idLastMedia = connexionASdb.insert("ba_media",fields,values);
+                                // Remplissage de la table d'association
+                                fields =  new String[]{"idMedia","idPlayer"};
+                                values = new String[]{String.valueOf(idLastMedia), String.valueOf(idLastPlayerInsered)};
+                                connexionASdb.insert("ba_middlemediaplayer",fields,values);
+                                //On décremente sur l'id du dernier enregistrement  inséré dans la table ba_player pour avoir l'id des autres joueurs...
+                                idLastPlayerInsered-=1;
                             }
                         }
                     }
                 }
+            }
+            // Mise à jour des joueurs si changement
+            //On récupére les joueurs qui seront mis à jour
+            List<ClassPlayer> listUpdates =  tabPlayer.getItems().stream().filter(player -> player.getId() > 0).toList();
+            //On boucle sur la liste initiale et celle obtenue apres mis à jour pour verifier elles sont differentes...
+            int nbMaJ =  0;
+            for(ClassPlayer player: listUpdates){
+                for (ClassPlayer initialPlayer : cloneInitialPlayer){
+                    if(initialPlayer.getId()==player.getId()){
+                        if (!initialPlayer.equals(player)){
+                            nbMaJ+=1;
+                            //Mis à jour du profile dans la table ba_player
+                            fields = new String[]{"lastName", "firstName", "email", "birthday", "description","phone", "phoneEmergency", "height", "weight", "position"};
+                            String sValues =  player.getString(true);
+                            values = sValues.split(",");
+                            connexionASdb.update(player.getId(),"ba_player",fields,values);
+                            //Mise à jour de la photo de profile dans la table ba_media
+                            fields = new String[]{"description", "typeMime", "path"};
+                            values  = new String[]{"Image de profile","Image",player.getPathProfile()};
+                            if(!initialPlayer.getMedias().isEmpty() && player.getMedias().getFirst().getId()!=0){
+                                connexionASdb.update(player.getMedias().getFirst().getId(),"ba_media",fields,values);
+                            }else {
+                                int idMedia =connexionASdb.insert("ba_media",fields,values);
+                                fields = new String[]{"idPlayer", "idMedia"};
+                                values = new String[]{String.valueOf(player.getId()), String.valueOf(idMedia)};
+                                connexionASdb.insert("ba_middlemediaplayer",fields,values);
+                            }
+                        }
+                    }
+                }
+            }
+            //On met a jour la collection initiale
+            cloneInitialPlayer.clear();
+            cloneInitialPlayer.addAll(listInserts);
+            cloneInitialPlayer.addAll(listUpdates);
             if(JOptionPane.showConfirmDialog(null,"Operation terminée.\n "+listInserts.size()+" Insertion(s) et "+nbMaJ+" mise(s) à jour\n Voulez-vous fermer la fenêtre?","Confirm",JOptionPane.YES_NO_OPTION)==0){
                 Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
                 stage.close();
@@ -274,9 +290,6 @@ public class FillTeam implements Initializable {
     void cancel(ActionEvent event){
         Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
         stage.close();
-    }
-    @FXML
-    void saveTitles() {
     }
     @FXML
     void delete(){
@@ -313,7 +326,7 @@ public class FillTeam implements Initializable {
         }
     }
     @FXML
-    private void formatInFields(){
+    private void formatInFields() throws URISyntaxException {
         currentPlayer =  tabPlayer.getSelectionModel().getSelectedItem();
         if (currentPlayer != null){
             fId.setText(String.valueOf(currentPlayer.getId()));
@@ -321,33 +334,34 @@ public class FillTeam implements Initializable {
             fLName.setText(currentPlayer.getLastName());
             fEmail.setText(currentPlayer.getEmail());
             dBirth.setValue(LocalDate.parse(currentPlayer.getBirthDay().toString()));
-            fCountry.setText(currentPlayer.getCountry());
-            fCity.setText(currentPlayer.getCity());
-            fAddress.setText(currentPlayer.getAddress());
-            fPostal.setText(String.valueOf(currentPlayer.getPostal()));
             fEPhone.setText(String.valueOf(currentPlayer.getPhoneEmergency()));
             fPhone.setText(String.valueOf(currentPlayer.getPhone()));
             fHeight.setText(String.valueOf(currentPlayer.getHeight()));
             fWeight.setText(String.valueOf(currentPlayer.getWeight()));
             cbPosition.getSelectionModel().select(currentPlayer.getPosition());
             fDesc.setText(currentPlayer.getDescription());
-            if (!currentPlayer.getMedias().isEmpty()){
-                Image image  =  new Image(currentPlayer.getMedias().getFirst().getPath());
+            if (!currentPlayer.getPathProfile().isEmpty()){
+                fIdMedia.setText(String.valueOf(currentPlayer.getMedias().getFirst().getId()));
+                Image image  =  new Image("file:"+currentPlayer.getPathProfile());
                 circleProfile.setFill(new ImagePattern(image));
             }
             tabPlayer.getItems().remove(currentPlayer);
         }
     }
     @FXML
-    private void addProfile(MouseEvent event){
+    private void addProfile() throws IOException {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif","jpeg");
         fileChooser.setFileFilter(filter);
         int returnChoose = fileChooser.showOpenDialog(null);
         if (returnChoose ==  JFileChooser.APPROVE_OPTION){
-            String pathImage = fileChooser.getSelectedFile().toURI().toString();
-            Image image =  new Image(pathImage);
+//            Je charge le fichier dans le rep dédié du projet ...
+            Path sourceFile  = Path.of(fileChooser.getSelectedFile().getPath());
+            Path targetFile =  Paths.get("src/main/resources/Image/"+sourceFile.getFileName());
+            Files.copy(sourceFile,targetFile, StandardCopyOption.REPLACE_EXISTING);
+            Image image =  new Image("file:"+ targetFile);
             circleProfile.setFill(new ImagePattern(image));
+
         }else ToastMessage.show("Info","Le fichier entré n'est pas pris en compte",3);
     }
     @FXML
@@ -357,14 +371,12 @@ public class FillTeam implements Initializable {
     }
     private  String getFieldType(TextField textField){
         String motif = null;
-        if(textField.equals(fFName) || textField.equals(fLName) || textField.equals(fCity) || textField.equals(fCountry)){
+        if(textField.equals(fFName) || textField.equals(fLName)){
             motif =  "label";
         }else if (textField.equals(fEmail)){
             motif =  "email";
         } else if (textField.equals(fPhone) || textField.equals(fPostal) || textField.equals(fEPhone) || textField.equals(fHeight) || textField.equals(fWeight)) {
-            motif =  "number";
-        }else if (textField.equals(fAddress)){
-            motif =  "text";
+            motif = "number";
         }
         return motif;
     }
@@ -375,11 +387,6 @@ public class FillTeam implements Initializable {
         cLastName.setCellValueFactory(new PropertyValueFactory<>("LastName"));
         cEmail.setCellValueFactory(new PropertyValueFactory<>("Email"));
         cBirthDay.setCellValueFactory(new PropertyValueFactory<>("BirthDay"));
-        cCountry.setCellValueFactory(new PropertyValueFactory<>("Country"));
-        cCity.setCellValueFactory(new PropertyValueFactory<>("City"));
-        cAddress.setCellValueFactory(new PropertyValueFactory<>("Address"));
-        cPostal.setCellValueFactory(new PropertyValueFactory<>("Postal"));
-        cPhone.setCellValueFactory(new PropertyValueFactory<>("Phone"));
         cPhoneEmergency.setCellValueFactory(new PropertyValueFactory<>("PhoneEmergency"));
         cHeight.setCellValueFactory(new PropertyValueFactory<>("Height"));
         cWeight.setCellValueFactory(new PropertyValueFactory<>("Weight"));
@@ -387,16 +394,13 @@ public class FillTeam implements Initializable {
         cDescription.setCellValueFactory(new PropertyValueFactory<>("Description"));
         // Le chemin du fichier uploader lier
         cPathProfile.setCellValueFactory(new PropertyValueFactory<>("PathProfile"));
+        cIdMedia.setCellValueFactory(new PropertyValueFactory<>("IdMedia"));
         //On rend editable toutes les colonnes du tableau TabPlayers
         cIdTeam.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         cFirstName.setCellFactory(TextFieldTableCell.forTableColumn());
         cLastName.setCellFactory(TextFieldTableCell.forTableColumn());
         cEmail.setCellFactory(TextFieldTableCell.forTableColumn());
         cBirthDay.setCellFactory(TextFieldTableCell.forTableColumn(new LocalDateStringConverter()));
-        cCountry.setCellFactory(TextFieldTableCell.forTableColumn());
-        cCity.setCellFactory(TextFieldTableCell.forTableColumn());
-        cAddress.setCellFactory(TextFieldTableCell.forTableColumn());
-        cPostal.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         cPhone.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter() ));
         cPhoneEmergency.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         cHeight.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
@@ -415,14 +419,6 @@ public class FillTeam implements Initializable {
         cEmail.setOnEditCommit( item -> {
             ClassPlayer player = item.getRowValue();
             player.setEmail(item.getNewValue());
-        });
-        cCountry.setOnEditCommit( item -> {
-            ClassPlayer player = item.getRowValue();
-            player.setCountry(item.getNewValue());
-        });
-        cCity.setOnEditCommit( item -> {
-            ClassPlayer player = item.getRowValue();
-            player.setCity(item.getNewValue());
         });
 
     }
@@ -465,7 +461,7 @@ public class FillTeam implements Initializable {
         try {
             listPlayer =  FXCollections.observableArrayList();
             currentCategory =  ClassManager.getUniqueInstance().getCurrentCategory();
-            currentTeam = ClassManager.getUniqueInstance().getCurrentCategory().getCurrentTeam();
+            currentTeam = currentCategory.getCurrentTeam();
             connexionASdb =  new ConnexionASdb();
             BindTabClass();
             fillPage();

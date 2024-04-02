@@ -17,11 +17,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import javafx.util.Duration;
 import main.assocationbasketproject.dialog.FillNewEvent;
 import main.assocationbasketproject.dialog.FillStats;
 import manager.ClassManager;
-import org.controlsfx.control.Notifications;
 import variables.ToastMessage;
 
 import java.net.URL;
@@ -110,8 +108,6 @@ public class HomePane implements Initializable {
     }
     void customDatePicker() {
         // Personnaliser le DatePicker
-        TextField customLabel = datePicker.getEditor();
-        customLabel.setAlignment(Pos.CENTER);
         datePicker.setDayCellFactory(new Callback<DatePicker, DateCell>() {
             @Override
             public DateCell call(DatePicker param) {
@@ -167,7 +163,7 @@ public class HomePane implements Initializable {
 
                             // Créer un AnchorPane en bas avec un label quelconque
                             AnchorPane bottomAnchor = new AnchorPane();
-                            int nb = 0;
+                            int nb;
                             try {
                                 nb  = oneSchedule.countEvent(ClassCoach.getInstance().getId(), date);
                             } catch (Exception e) {
@@ -189,7 +185,6 @@ public class HomePane implements Initializable {
                 };
             }
         });
-        datePicker.show();
     }
     void handleAction(MouseEvent event){}
     void fillTabs(ArrayList<ClassEvent> events,Boolean search){
@@ -236,42 +231,36 @@ public class HomePane implements Initializable {
     }
     @FXML
     void deleteEvent(ActionEvent event) throws Exception {
-        int id = tabMatch.getSelectionModel().getSelectedItem().getId();
-        if (id==0) id =otherTab.getSelectionModel().getSelectedItem().getId();
-        if (id!=0){
+        //Petite mécanique pour le controlle de la selection d'une ligne des deux tableaux presentés...
+        ClassEvent currentEvent = tabMatch.getSelectionModel().getSelectedItem()!=null? tabMatch.getSelectionModel().getSelectedItem() : null;
+        if (currentEvent==null) currentEvent =otherTab.getSelectionModel().getSelectedItem()!=null?  otherTab.getSelectionModel().getSelectedItem():null;
+        if (currentEvent!=null){
             String[] fields =  {"close"};
             String[] values = {"1"};
             ConnexionASdb connexionASdb = ClassManager.getUniqueInstance().getConnexionASdb();
-            queueEvent.offer(oneSchedule.getEvent(id));
-            connexionASdb.update(id,"ba_event",fields,values);
-
+            queueEvent.offer(oneSchedule.getEvent(currentEvent.getId()));
+            connexionASdb.update(currentEvent.getId(),"ba_event",fields,values);
             oneSchedule.loadEvents(ClassCoach.getInstance().getId(),null,false);
             fillTabs(oneSchedule.getEvents(),false);
         }else ToastMessage.show("Info","Veillez selectionner la ligne a closer!",3);
     }
     @FXML
     void updateEvent(ActionEvent event) throws Exception {
-        int id =tabMatch.getSelectionModel().getSelectedItem().getId();
-        if (id==0) id =otherTab.getSelectionModel().getSelectedItem().getId();
+        ClassEvent currentEvent = tabMatch.getSelectionModel().getSelectedItem()!=null? tabMatch.getSelectionModel().getSelectedItem() : null;
+        if (currentEvent==null) currentEvent =otherTab.getSelectionModel().getSelectedItem()!=null?  otherTab.getSelectionModel().getSelectedItem():null;
         // La mise a jour est faite pour une ligne en fonction de l'id
-        if (id != 0) {
+        if (currentEvent!=null) {
             FXMLLoader fxml =  new FXMLLoader(Objects.requireNonNull(getClass().getResource("dialog/dialogEvent.fxml")));
             DialogPane dialogPane =  fxml.load();
             FillNewEvent dialogEvent =  fxml.getController();
-            // Je remplie la queue d'evenenement pour defaire les modifications au cas où!!
-            //queueEvent.offer(oneSchedule.getEvent(id)); /// Ajout dans la queue d'evenenemt pour performer "undo"
-            dialogEvent.initialise(datePicker.getValue(),id);
+            dialogEvent.initialise(datePicker.getValue(),currentEvent.getId());
             Stage stage =  new Stage();
             stage.setTitle("Fills infos of events");
             stage.setScene(new Scene(dialogPane));
             stage.showAndWait();
-
             oneSchedule.loadEvents(ClassCoach.getInstance().getId(),null,false);
             fillTabs(oneSchedule.getEvents(),false);
-        }else Notifications.create()
-                .text("Veillez selection la ligne a modifier!")
-                .hideAfter(Duration.millis(5))
-                .show();
+        }else ToastMessage.show("Info","Veillez selectionner la ligne à mettre à jour!",3);
     }
     @FXML
     void undo() throws Exception {
@@ -289,42 +278,37 @@ public class HomePane implements Initializable {
     void search(ActionEvent event) throws Exception {
         if (dateBegin.getValue()==null && dateEnd.getValue()==null){
             dateBegin.setValue(LocalDate.parse("2023-05-01"));
-            dateEnd.setValue(LocalDate.parse("2024-05-01"));
+            dateEnd.setValue(LocalDate.now());
         }
         oneSchedule.search(dateBegin.getValue(),dateEnd.getValue(), cbClose.getSelectionModel().getSelectedItem(),fKeyWord.getText());
         fillTabs(oneSchedule.getEvents(),true);
     }
     @FXML
     void fillStats(ActionEvent event) throws Exception {
-        if (!(tabMatch.getSelectionModel().isEmpty() && otherTab.getSelectionModel().isEmpty())){
-            ClassEvent currentEvent =null;
-            if (!tabMatch.getSelectionModel().isEmpty()) currentEvent = tabMatch.getSelectionModel().getSelectedItem();
-            if (!otherTab.getSelectionModel().isEmpty()) currentEvent = otherTab.getSelectionModel().getSelectedItem();
-            if (currentEvent.getIdTeam() > 0) {
-                ClassManager manager =  ClassManager.getUniqueInstance();
-                manager.loadCaterogies();
-                for (ClassCategory category :manager.getCategories()){
-                    category.initialise();
-                    for (ClassTeam team : category.getTeams()){
-                        if ( currentEvent.getIdTeam() == team.getId()){
-                            manager.setCurrentCategory(category);
-                            category.setCurrentTeam(team);
-                            FXMLLoader fxml =  new FXMLLoader(getClass().getResource("dialog/fillStats.fxml"));
-                            DialogPane dialogPane =  fxml.load();
-                            ((FillStats )fxml.getController()).initialize(currentEvent.getId());
-                            Stage stage =  new Stage();
-                            stage.setScene(new Scene(dialogPane));
-                            stage.showAndWait();
+        ClassEvent currentEvent = tabMatch.getSelectionModel().getSelectedItem()==null?null:tabMatch.getSelectionModel().getSelectedItem();
+        if(currentEvent!=null){
+            ClassManager manager =  ClassManager.getUniqueInstance();
+            manager.loadCaterogies();
+            for (ClassCategory category :manager.getCategories()){
+                category.initialise();
+                for (ClassTeam team : category.getTeams()){
+                    if ( currentEvent.getIdTeam() == team.getId()) {
+                        manager.setCurrentCategory(category);
+                        category.setCurrentTeam(team);
+                        FXMLLoader fxml = new FXMLLoader(getClass().getResource("dialog/fillStats.fxml"));
+                        DialogPane dialogPane = fxml.load();
+                        ((FillStats) fxml.getController()).initialize(currentEvent.getId());
+                        Stage stage = new Stage();
+                        stage.setScene(new Scene(dialogPane));
+                        stage.showAndWait();
 
-                            oneSchedule.loadEvents(ClassCoach.getInstance().getId(),null,false);
-                            fillTabs(oneSchedule.getEvents(),false);
-                            break;
-                        }
-                    }
+                        oneSchedule.loadEvents(ClassCoach.getInstance().getId(), null, false);
+                        fillTabs(oneSchedule.getEvents(), false);
+                        break;
+                    }else ToastMessage.show("Info","Cette evenement n'est pas lié à une equipe",3);
                 }
             }
-        }
-
+        }else ToastMessage.show("Info","Veillez selectionner la ligne a closer!",3);
     }
     private  void bindColumnsTables(){
         // Je lie les colonnes des tableaux aux propriétes des classes par lesquelles elles seront remplies

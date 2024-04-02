@@ -8,23 +8,28 @@ import java.util.Objects;
 import java.util.Properties;
 
 public class ConnexionASdb {
-    private Connection connection;
-    private Statement statement;
+    private Connection connection = null;
+    private Statement statement= null;
     private  PreparedStatement preparedStatement;
-    public ConnexionASdb() throws Exception {
-        Properties properties =  new Properties();
-        try(FileInputStream file = new FileInputStream("src/main/resources/Config/conf.properties")) {
+    public ConnexionASdb(){
+        try{
+            Properties properties =  new Properties();
+            FileInputStream file = new FileInputStream("src/main/resources/Config/conf.properties");
             properties.load(file);
+            Class.forName(properties.getProperty("jdbc.driver.class"));
+            String url =  properties.getProperty("jdbc.url");
+            String login =  properties.getProperty("jdbc.login");
+            String password =  properties.getProperty("jdbc.password");
+            this.connection = DriverManager.getConnection(url,login,password);
+            this.statement = connection.createStatement();
+        }catch (Exception exception){
+            this.connection =  null;
+            throw new RuntimeException(exception);
         }
-        Class.forName(properties.getProperty("jdbc.driver.class"));
-        String url =  properties.getProperty("jdbc.url");
-        String login =  properties.getProperty("jdbc.login");
-        String password =  properties.getProperty("jdbc.password");
-        this.connection = DriverManager.getConnection(url,login,password);
-        this.statement = connection.createStatement();
-
     }
-    public Connection getConnection(){return this.connection;}
+    public Connection getConnection(){
+        return this.connection;
+    }
     public ReturnCheck checkCredentials(String login, String passWord) throws NoSuchAlgorithmException {
         ReturnCheck ReturnCheck =  new ReturnCheck();
         try{

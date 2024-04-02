@@ -1,6 +1,7 @@
 package manager;
 
 import db.ClassCategory;
+import db.ClassPlayer;
 import db.ConnexionASdb;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,8 +9,6 @@ import javafx.collections.ObservableList;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 public class ClassManager {
     private static volatile ClassManager uniqueInstance;
@@ -58,16 +57,18 @@ public class ClassManager {
         return uniqueInstance;
     }
     public void setConnexionASdb(ConnexionASdb connexionASdb) { this.connexionASdb = connexionASdb;}
-    public ObservableList<String> allPlayers() throws SQLException {
-        ObservableList<String> listPLayers = FXCollections.observableArrayList();
-        String sqlReq = "SELECT id,firstName,lastName, birthday FROM ba_player";
+    public ObservableList<ClassPlayer> allPlayers() throws SQLException {
+        ObservableList<ClassPlayer> listPLayers = FXCollections.observableArrayList();
+        String sqlReq = "SELECT ba_player.id, ba_player.firstName, birthday, ba_player.lastName FROM ba_player";
         Statement statement = connexionASdb.getStatement();
         ResultSet resultSet =  statement.executeQuery(sqlReq);
         while (resultSet.next()){
-            int id =  resultSet.getInt("id");
-            String name = resultSet.getString("lastName") +" "+ resultSet.getString("firstName");;
-            int age = Period.between(resultSet.getDate("birthday").toLocalDate(), LocalDate.now()).getYears();
-            listPLayers.add(id + "," + name +" ("+ age +" years)");
+            ClassPlayer temp  =  new ClassPlayer();
+            temp.setId(resultSet.getInt("id"));
+            temp.setLastName(resultSet.getString("lastName"));
+            temp.setFirstName(resultSet.getString("firstName"));
+            temp.setBirthDay(resultSet.getDate("birthday"));
+            listPLayers.add(temp);
         }
         return listPLayers;
     }

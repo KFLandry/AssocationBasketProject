@@ -36,7 +36,7 @@ public class ClassGmail {
      * Application name.
      */
     private String currentFullMain;
-    private static final String USER_TEST =  "kankeulandry26@gmail.com";
+    private static final String USER_TEST =  "wilfrieddev0@gmail.com";
     private static final String APPLICATION_NAME = "test API Gmail";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
@@ -67,9 +67,8 @@ public class ClassGmail {
     }
     public List<Message> getMessages () throws IOException, GeneralSecurityException {
         // Print the labels in the user's account.
-        List<Message> tempMessages = new ArrayList<Message>();
-        String user = "kankeulandry26@gmail.com";
-        List<String> LabelsID = new ArrayList<String>();
+        List<Message> tempMessages = new ArrayList<>();
+        List<String> LabelsID = new ArrayList<>();
         LabelsID.add("SPAM");
         List<Message> messagesResponse = (List<Message>) Objects.requireNonNull(authorize()).users().messages().list(USER_TEST).setLabelIds(LabelsID).setMaxResults(8L).execute().getMessages();
         for(Message mail : messagesResponse){
@@ -136,7 +135,7 @@ public class ClassGmail {
         MimeMessage email = new MimeMessage(session);
 
         if (style.equals("check")){
-            subject =  "Code verification Compte Association Basket";
+            subject =  "Code verification de votre nouveau compte  sur l'application Association Basket";
             secretCode = ThreadLocalRandom.current().nextInt(100000, 999999 + 1);
             email.setFrom(new InternetAddress(USER_TEST));
             email.setSubject(subject);

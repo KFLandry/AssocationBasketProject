@@ -97,7 +97,7 @@ public class FillStats{
                         addBatch(new ClassPlayer());
                         int[] results  =  statement.executeBatch();
                         if (results.length> 0) {
-                            JOptionPane.showConfirmDialog(null, "Opération  terminée.\n La fenêtre de dialog va se fermer", "Success!", JOptionPane.YES_OPTION);
+                            JOptionPane.showConfirmDialog(null, "Opération  terminée.\n La fenêtre de dialog va se fermer", "Success!", JOptionPane.DEFAULT_OPTION);
                             //On close l'evenemement par la même occasion
                             closeEvent();
                             statement.close();
@@ -105,7 +105,7 @@ public class FillStats{
                             Button button = (Button) event.getSource();
                             Stage stage = (Stage) button.getScene().getWindow();
                             stage.close();
-                        }else JOptionPane.showConfirmDialog(null,"Un problème a ete rencontré!Consuluter les stacks pour plus details","Erreur",JOptionPane.WARNING_MESSAGE);
+                        }else JOptionPane.showConfirmDialog(null,"Un problème a ete rencontré!Consuluter les stacks pour plus details","Erreur",JOptionPane.DEFAULT_OPTION);
                     }else btnSave.setText( "Save next");  listView.getSelectionModel().selectFirst(); emptyFields();
                 }
             }
