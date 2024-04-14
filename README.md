@@ -25,7 +25,6 @@ Les plateformes supportées incluent Windows, MacOS et Linux, assurant ainsi une
 **Description Fonctionnelle & Technique**
 
 1. **Système d'authentification**
-   - exit 
    - Gestion de mot de passe oublié.
    - Validation de compte par email.
 
@@ -63,3 +62,4 @@ Les outils de développement utilisés sont les suivants :
   
 **Requis**
   Cle API de Google Gmail sous forme d'un fichier JSON à mettre dans le repertoire "src/main/resources"
+**Documentation**
