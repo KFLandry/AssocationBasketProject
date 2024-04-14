@@ -62,4 +62,6 @@ Les outils de développement utilisés sont les suivants :
   
 **Requis**
   Cle API de Google Gmail sous forme d'un fichier JSON à mettre dans le repertoire "src/main/resources"
+
 **Documentation**
+  https://github.com/KFLandry/Basket-Master/tree/e4dcd7ae9db2fa784cc8f4f1761cdece74e773b1/src/main/resources/Documents
