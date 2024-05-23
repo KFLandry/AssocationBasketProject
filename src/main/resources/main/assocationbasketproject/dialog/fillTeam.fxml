@@ -21,6 +21,7 @@
 <?import javafx.scene.paint.RadialGradient?>
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
 
 <DialogPane prefHeight="644.0" prefWidth="915.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.dialog.FillTeam">
    <graphic>
@@ -75,6 +76,7 @@
                               <ComboBox fx:id="cbPosition" prefWidth="150.0" />
                            </children>
                         </HBox>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="the numbers must  be &lt;= 2147483647" />
                         <VBox spacing="5.0">
                            <children>
                               <HBox spacing="80.0">
@@ -114,7 +116,7 @@
                   </VBox>
                   <VBox alignment="TOP_RIGHT" prefHeight="304.0" prefWidth="369.0" spacing="5.0">
                      <children>
-                        <VBox prefHeight="309.0" prefWidth="366.0" spacing="15.0">
+                        <VBox prefHeight="318.0" prefWidth="379.0" spacing="15.0">
                            <children>
                               <StackPane prefHeight="150.0" prefWidth="200.0">
                                  <children>
@@ -151,11 +153,9 @@
                                     <DropShadow height="5.0" radius="2.0" spread="0.08" width="5.0" />
                                  </effect>
                               </StackPane>
-                              <Pane prefHeight="66.0" prefWidth="369.0">
-                                 <children>
-                                    <Button layoutX="117.0" layoutY="1.0" mnemonicParsing="false" onAction="#addProfile" text="upLoader votre profile" />
-                                 </children>
-                              </Pane>
+                              <Pane prefHeight="66.0" prefWidth="369.0" />
+                              <Button mnemonicParsing="false" onAction="#addProfile" prefHeight="25.0" prefWidth="382.0" text="upLoader votre profile" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="For any updates, avoid any special characters, accents, and punctuation. Thanks." wrappingWidth="378.13671875" />
                               <HBox prefHeight="119.0" prefWidth="369.0">
                                  <children>
                                     <Label text="Description       " />

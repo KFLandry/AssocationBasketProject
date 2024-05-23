@@ -34,7 +34,6 @@
             </VBox>
             <Button fx:id="btnSave" layoutX="312.0" layoutY="433.0" mnemonicParsing="false" onAction="#save" prefHeight="31.0" prefWidth="151.0" text="Save" />
             <Button layoutX="59.0" layoutY="433.0" mnemonicParsing="false" onAction="#cancel" prefHeight="31.0" prefWidth="174.0" text="Cancel" />
-            <Label layoutX="59.0" layoutY="14.0" prefHeight="55.0" prefWidth="404.0" text="Label" />
             <HBox layoutX="58.0" layoutY="69.0" prefHeight="53.0" prefWidth="406.0" spacing="22.0">
                <children>
                   <VBox>
@@ -79,6 +78,7 @@
                   <TextArea fx:id="fDesc" prefHeight="146.0" prefWidth="404.0" />
                </children>
             </VBox>
+            <TextArea disable="true" editable="false" layoutX="58.0" layoutY="22.0" prefHeight="47.0" prefWidth="396.0" text="Only teams with more than 5 players can be scheduled there.&#10; All the players concerned are notified by email" />
          </children>
       </AnchorPane>
    </content>
