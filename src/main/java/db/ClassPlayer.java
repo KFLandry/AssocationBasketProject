@@ -60,6 +60,12 @@ public class ClassPlayer implements Cloneable {
         this.mAvailable = true;
     }
     public void setId(int mId) { this.mId = mId; }
+
+    /**
+     * Initialise the player and load all its data.
+     *
+     * @throws Exception the exception
+     */
     public void initialise() throws Exception {
         connexionASdb =  new ConnexionASdb();
         String sqlQuery = "SELECT " +
@@ -189,7 +195,8 @@ public class ClassPlayer implements Cloneable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ClassPlayer player)) return false;
+        if (!(
+                o instanceof ClassPlayer player)) return false;
         return mId == player.mId && mIdTeam == player.mIdTeam && mPhone == player.mPhone && mPhoneEmergency == player.mPhoneEmergency && mHeight == player.mHeight && mWeight == player.mWeight && Objects.equals(mGender, player.mGender) && Objects.equals(mFirstName, player.mFirstName) && Objects.equals(mLastName, player.mLastName) && Objects.equals(mBirthDay, player.mBirthDay) && Objects.equals(mEmail, player.mEmail) && Objects.equals(mDescription, player.mDescription) && Objects.equals(mCategory, player.mCategory) && Objects.equals(mTeamName, player.mTeamName) && Objects.equals(mCategoryName, player.mCategoryName) && Objects.equals(mMedias, player.mMedias);
     }
 

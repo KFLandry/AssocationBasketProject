@@ -46,8 +46,6 @@ import java.util.regex.Pattern;
 
 public class LogonController implements Initializable {
     @FXML
-    private AnchorPane anchorPane;
-    @FXML
     private Button btnSignUp;
     @FXML
     private Button btnSubmit;

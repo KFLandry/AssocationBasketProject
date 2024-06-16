@@ -30,12 +30,6 @@ import static javafx.scene.paint.Color.GREEN;
 import static javafx.scene.paint.Color.RED;
 public class LoginController implements Initializable {
     @FXML
-    private RadioButton IntAgree;
-    @FXML
-    private RadioButton intAgree;
-    @FXML
-    private Region LinkHome;
-    @FXML
     private TextField inpuLogin;
     @FXML
     private PasswordField inputPassword;
@@ -43,10 +37,6 @@ public class LoginController implements Initializable {
     private Label labelTrace;
     @FXML
     private StackPane stackPane;
-    @FXML
-    void GitHubConect(ActionEvent event) {}
-    @FXML
-    void GoogleConnect(ActionEvent event) {}
     @FXML
     void LinkMdpOublié(ActionEvent event) throws IOException {
         stackPane.getChildren().removeAll();
@@ -78,7 +68,7 @@ public class LoginController implements Initializable {
                    labelTrace.setText(result.text);
                    labelTrace.setTextFill(RED);
                }
-           }catch (SQLException e){
+           }catch (Exception e){
                JOptionPane.showConfirmDialog(null,"La connexion au serveur a échoué!\nRassurez-vous que le serveur est bien lancé et reessayez\nDetails : "+e.getMessage(),"Erreur connection : ", JOptionPane.DEFAULT_OPTION);
            }
        }else inpuLogin.requestFocus();

@@ -38,6 +38,9 @@ public class HomePane implements Initializable {
     private Button btnClose;
     @FXML
     private DatePicker datePicker;
+    /**
+     * otherTab, tabSearch et tabMatch  sont tous du même type
+     * **/
     @FXML
     private TableView<ClassEvent> otherTab;
     @FXML
@@ -187,6 +190,13 @@ public class HomePane implements Initializable {
         });
     }
     void handleAction(MouseEvent event){}
+
+    /**
+     *Fill all kinds of events.
+     *
+     * @param events the events
+     * @param search the search
+     */
     void fillTabs(ArrayList<ClassEvent> events,Boolean search){
         ObservableList<ClassEvent> mList =FXCollections.observableArrayList();
         ObservableList<ClassEvent> oList =FXCollections.observableArrayList();
@@ -208,6 +218,14 @@ public class HomePane implements Initializable {
             }else tabSearch.setItems(mList);
             disableBtns(false);
         }else disableBtns(true);
+    }
+    @FXML
+    void selectEvent(){
+        if (tabMatch.getSelectionModel().getSelectedItem()!=null){
+            btnFillStats.setDisable(!tabMatch.getSelectionModel().getSelectedItem().getType().equals(TypeEvent.Match));
+        }else{
+            btnFillStats.setDisable(true);
+        }
     }
     private void disableBtns(boolean b){
         btnUpdate.setDisable(b);

@@ -71,6 +71,14 @@ public class Statistics implements Initializable {
         currentCategory =  cbCategory.getSelectionModel().getSelectedItem();
         fillPage();
     }
+
+    /**
+     * Fill chart team.
+     * And then uses the graphs and target teams to create tooltips for each
+     * statistic that provide more information
+     *
+     * @throws Exception the exception
+     */
     @FXML
     void fillChartTeam() throws Exception {
         if (!cbTeam.getItems().isEmpty()){
@@ -120,6 +128,10 @@ public class Statistics implements Initializable {
             }
             chartTeam.getData().clear();
             chartTeam.getData().add(series);
+            /**
+             * Tooltip creation
+             * @see Tooltip
+             * **/
             chartTeam.getData().forEach( bindSeries -> {
                 for (int i = 0; i<bindSeries.getData().size(); i++){
                     ClassStatistique stat = teamsStats.get(i);

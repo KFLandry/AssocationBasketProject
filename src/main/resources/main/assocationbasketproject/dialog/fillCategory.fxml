@@ -20,7 +20,7 @@
          <children>
             <VBox layoutX="16.0" layoutY="45.0" prefHeight="502.0" prefWidth="527.0" spacing="10.0">
                <children>
-                  <VBox prefHeight="236.0" prefWidth="527.0">
+                  <VBox prefHeight="251.0" prefWidth="527.0">
                      <children>
                         <HBox spacing="20.0">
                            <children>
@@ -46,15 +46,15 @@
                               </VBox>
                            </children>
                         </HBox>
-                        <VBox prefHeight="130.0" prefWidth="218.0" spacing="5.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
+                        <VBox prefHeight="140.0" prefWidth="527.0" spacing="5.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
                            <children>
                               <Label text="Story" />
-                              <TextArea fx:id="fStory" prefHeight="110.0" prefWidth="525.0" style="-fx-border-color: white;" />
+                              <TextArea fx:id="fStory" prefHeight="119.0" prefWidth="525.0" style="-fx-border-color: white;" />
                            </children>
                         </VBox>
                      </children>
                   </VBox>
-                  <Label text="Teams" />
+                  <Label prefHeight="39.0" prefWidth="520.0" text="Teams (La création d'équipe se fait dans la tableau ci-dessous et se valide sur &quot;Add Team&quot;)" textAlignment="RIGHT" />
                   <HBox spacing="7.0">
                      <children>
                         <TableView fx:id="teamTable" editable="true" prefHeight="187.0" prefWidth="432.0">

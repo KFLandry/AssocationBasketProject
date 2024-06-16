@@ -106,6 +106,13 @@ public class FillNewEvent {
 
         custom();
     }
+
+    /**
+     * Perform a insertion or an updating
+     *
+     * @param event the event
+     * @throws Exception the exception
+     */
     @FXML
     void save(ActionEvent event) throws Exception {
         if (!(fDesc.getText().isEmpty() && fSubject.getText().isEmpty() && comboLocation.getEditor().getText().isEmpty())){
@@ -154,6 +161,39 @@ public class FillNewEvent {
         Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
         stage.close();
     }
+    private void buildStatement(String query,int id) throws Exception {
+        String sql;
+        LocalTime time =  LocalTime.of(cbHours.getSelectionModel().getSelectedItem(),cbMinutes.getSelectionModel().getSelectedItem());
+        if (Objects.equals(query, "insert") || id==0) {
+            sql = "INSERT INTO ba_event (idCoach,idTeam,type,subject,importance,datePlanned,time,location,description) VALUES (?,?,?,?,?,?,?,?,?);";
+        }else sql = "UPDATE ba_event SET idCoach=?,idTeam=?,type=?,subject=?,importance=?,datePlanned=?,time=?,location=?,description=? WHERE id="+id+";";
+        statement =  manager.getConnexionASdb().getConnection().prepareStatement(sql);
+        statement.setInt(1,ClassCoach.getInstance().getId());
+        if (cbTeams.getValue()== null || cbTeams.getValue().getId() == 0 ) {
+            statement.setNull(2, Types.INTEGER);
+        } else {
+            statement.setInt(2, cbTeams.getValue().getId());
+        }
+        statement.setString(3,cbEvents.getSelectionModel().getSelectedItem());
+        statement.setString(4,fSubject.getText());
+        statement.setString(5,cbImportance.getSelectionModel().getSelectedItem());
+        statement.setDate(6, Date.valueOf(datePicker.getValue()));
+        statement.setTime(7, Time.valueOf(time));
+        statement.setString(8,comboLocation.getEditor().getText());
+        statement.setString(9,fDesc.getText());
+    }
+    void custom(){
+        // times fields
+        for (int i = 0; i <= 23; i++) {cbHours.getItems().add(i);}
+        cbHours.getSelectionModel().select(9);
+        for (int i = 0; i <= 59; i++) { cbMinutes.getItems().add(i);}
+        cbMinutes.getSelectionModel().select(30);
+    }
+    private  void notifyPlayers(String subject, String from, ArrayList<String> toAddresses, LocalDateTime dateTime, String oppenent, String coach, String location) throws Exception {
+        MimeMultipart mimeMultipart =  Template.notifyPlayer(dateTime,oppenent,coach,location);
+        ClassGmail.sendEmail("notify",from,toAddresses,subject,mimeMultipart);
+    }
+
     @FXML
     void autoCompleteAddress(KeyEvent event){
         String input = comboLocation.getEditor().getText();
@@ -196,37 +236,5 @@ public class FillNewEvent {
                 };
             }
         });
-    }
-    private void buildStatement(String query,int id) throws Exception {
-        String sql;
-        LocalTime time =  LocalTime.of(cbHours.getSelectionModel().getSelectedItem(),cbMinutes.getSelectionModel().getSelectedItem());
-        if (Objects.equals(query, "insert") || id==0) {
-            sql = "INSERT INTO ba_event (idCoach,idTeam,type,subject,importance,datePlanned,time,location,description) VALUES (?,?,?,?,?,?,?,?,?);";
-        }else sql = "UPDATE ba_event SET idCoach=?,idTeam=?,type=?,subject=?,importance=?,datePlanned=?,time=?,location=?,description=? WHERE id="+id+";";
-        statement =  manager.getConnexionASdb().getConnection().prepareStatement(sql);
-        statement.setInt(1,ClassCoach.getInstance().getId());
-        if (cbTeams.getValue()== null || cbTeams.getValue().getId() == 0 ) {
-            statement.setNull(2, Types.INTEGER);
-        } else {
-            statement.setInt(2, cbTeams.getValue().getId());
-        }
-        statement.setString(3,cbEvents.getSelectionModel().getSelectedItem());
-        statement.setString(4,fSubject.getText());
-        statement.setString(5,cbImportance.getSelectionModel().getSelectedItem());
-        statement.setDate(6, Date.valueOf(datePicker.getValue()));
-        statement.setTime(7, Time.valueOf(time));
-        statement.setString(8,comboLocation.getEditor().getText());
-        statement.setString(9,fDesc.getText());
-    }
-    void custom(){
-        // times fields
-        for (int i = 0; i <= 23; i++) {cbHours.getItems().add(i);}
-        cbHours.getSelectionModel().select(9);
-        for (int i = 0; i <= 59; i++) { cbMinutes.getItems().add(i);}
-        cbMinutes.getSelectionModel().select(30);
-    }
-    private  void notifyPlayers(String subject, String from, ArrayList<String> toAddresses, LocalDateTime dateTime, String oppenent, String coach, String location) throws Exception {
-        MimeMultipart mimeMultipart =  Template.notifyPlayer(dateTime,oppenent,coach,location);
-        ClassGmail.sendEmail("notify",from,toAddresses,subject,mimeMultipart);
     }
 }

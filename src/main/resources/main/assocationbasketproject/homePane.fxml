@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<Pane id="pane" prefHeight="734.0" prefWidth="887.0" stylesheets="@style/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.HomePane">
+<Pane id="pane" onMouseClicked="#selectEvent" prefHeight="734.0" prefWidth="887.0" stylesheets="@style/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.assocationbasketproject.HomePane">
    <children>
       <DatePicker fx:id="datePicker" editable="false" layoutX="103.0" layoutY="1.0" prefHeight="30.0" prefWidth="682.0" showWeekNumbers="true">
          <opaqueInsets>
@@ -39,7 +39,7 @@
                                           <Font name="System Bold" size="12.0" />
                                        </font>
                                     </Label>
-                                    <TableView id="tableView" fx:id="tabMatch" prefHeight="197.0" prefWidth="356.0">
+                                    <TableView id="tableView" fx:id="tabMatch" onMouseClicked="#selectEvent" prefHeight="197.0" prefWidth="356.0">
                                        <columns>
                                           <TableColumn fx:id="idColumn" prefWidth="24.0" text="ID" visible="false" />
                                           <TableColumn fx:id="dateColumn" prefWidth="100.0" text="Date " />
@@ -89,7 +89,7 @@
                                           <Font name="System Bold" size="12.0" />
                                        </font>
                                     </Label>
-                                    <TableView id="tableView" fx:id="otherTab" prefHeight="196.0" prefWidth="356.0">
+                                    <TableView id="tableView" fx:id="otherTab" onMouseClicked="#selectEvent" prefHeight="196.0" prefWidth="356.0">
                                        <columns>
                                           <TableColumn fx:id="oIdColumn" minWidth="9.0" prefWidth="26.0" text="ID" visible="false" />
                                           <TableColumn fx:id="oDateColumn" prefWidth="111.0" text="Date" />

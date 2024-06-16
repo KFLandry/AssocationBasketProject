@@ -7,10 +7,19 @@ import java.sql.*;
 import java.util.Objects;
 import java.util.Properties;
 
+/**
+ * The type Connexion a sdb.
+ * @author landry
+ * @version 1
+ */
 public class ConnexionASdb {
     private Connection connection = null;
     private Statement statement= null;
     private  PreparedStatement preparedStatement;
+
+    /**
+     * Instantiates a new Connexion a sdb.
+     */
     public ConnexionASdb(){
         try{
             Properties properties =  new Properties();
@@ -27,9 +36,24 @@ public class ConnexionASdb {
             throw new RuntimeException(exception);
         }
     }
+
+    /**
+     * Get the current connection.
+     *
+     * @return the connection
+     */
     public Connection getConnection(){
         return this.connection;
     }
+
+    /**
+     * Check credentials return check.
+     *
+     * @param login    the login
+     * @param passWord the pass word
+     * @return the return check
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public ReturnCheck checkCredentials(String login, String passWord) throws NoSuchAlgorithmException {
         ReturnCheck ReturnCheck =  new ReturnCheck();
         try{
@@ -48,6 +72,17 @@ public class ConnexionASdb {
         }
         return ReturnCheck;
     }
+
+    /**
+     * Generic insertion method
+     *
+     * @param table  the target table's name in the database
+     * @param fields Array of String of all the columns to add
+     * @param values Array of String of all the values of columns
+     * @return If the insertion is successful; return the last insert ID otherwise return 0
+     * @throws SQLException             the sql exception
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public int insert(String table,String[] fields, String[] values) throws SQLException, NoSuchAlgorithmException {
         StringBuilder setValues  = new StringBuilder();
         StringBuilder setFiels = new StringBuilder();
@@ -95,11 +130,28 @@ public class ConnexionASdb {
         }
         return  idReturn;
     }
+
+    /**
+     * Generic Delete int.
+     *
+     * @param table  the target table's name in the database
+     * @param idOcc the ID of occurrence target
+     * @return If the deletion is successful; return the 1 otherwise return 0
+     * @throws SQLException the sql exception
+     */
     public int  delete(String table,int idOcc) throws SQLException {
         String sqlReq = "DELETE FROM "+table+" WHERE id="+idOcc;
         preparedStatement =  connection.prepareStatement(sqlReq);
         return preparedStatement.executeUpdate();
     }
+
+    /**
+     * Hash string.
+     *
+     * @param word the word
+     * @return the string
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public static String hash(String word ) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(word.getBytes());
@@ -112,6 +164,17 @@ public class ConnexionASdb {
         }
         return hexString.toString();
     }
+
+    /**
+     * Update int.
+     *
+     * @param idOcc  the id occ
+     * @param table  the target table's name in the database
+     * @param fields Array of String of all the columns to add
+     * @param values Array of String of all the values of columns
+     * @return If the update is successful; return the last insert ID otherwise return 0
+     * @throws SQLException the sql exception
+     */
     public int update(int idOcc, String table, String[] fields, String[] values) throws SQLException {
         StringBuilder setParameters = new StringBuilder();
         for (int i=0;i<values.length;i++){
@@ -122,6 +185,12 @@ public class ConnexionASdb {
         preparedStatement =  connection.prepareStatement(sqlReq);
         return preparedStatement.executeUpdate();
     }
+
+    /**
+     * Get statement statement.
+     *
+     * @return the statement
+     */
     public Statement getStatement(){return statement;}
 }
 

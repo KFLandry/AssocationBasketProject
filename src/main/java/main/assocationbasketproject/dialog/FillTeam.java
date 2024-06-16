@@ -185,14 +185,22 @@ public class FillTeam implements Initializable {
         cbPosition.getSelectionModel().selectFirst();
         fDesc.setText("");
         circleProfile.setFill(null);
-
         btnFill.setDisable(false);
         btnClear.setDisable(false);
         btnDelete.setDisable(false);
         btnUndo.setDisable(false);
     }
+
+    /**
+     * Save both the new insertions and the updates
+     *
+     * @param event the event
+     * @throws SQLException             the sql exception
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     * @see #cloneInitialPlayer
+     */
     @FXML
-    void save(ActionEvent event) throws SQLException, NoSuchAlgorithmException, IOException, URISyntaxException {
+    void save(ActionEvent event) throws SQLException, NoSuchAlgorithmException {
         if(!tabPlayer.getItems().isEmpty()){
             String[] fields = {"idTeam","gender","lastName","firstName","email","birthday","description","phone","phoneEmergency","height","weight","position","hurt","available"};
             //On récupére les nouveaux joueurs qui seront inserés

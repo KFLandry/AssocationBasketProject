@@ -68,7 +68,6 @@ public class Category implements Initializable {
     private ClassTeam currentTeam;
     private ClassManager manager;
     private ClassCategory currentCategory;
-    private ArrayList<ClassCategory> categories;
     private void fillPage() throws SQLException {
         lName.setText(currentCategory.getName());
         lDate.setText(currentCategory.getDateCreation().toString());
@@ -137,11 +136,6 @@ public class Category implements Initializable {
     }
     @FXML
     void updateCategory() throws IOException {
-        categories.forEach( category -> {
-            if (category.getName().equals(cbCategory.getSelectionModel().getSelectedItem())){
-                manager.setCurrentCategory(category);
-            }
-        });
         FXMLLoader fxml =  new FXMLLoader(getClass().getResource("dialog/fillCategory.fxml"));
         DialogPane dialogPane =  fxml.load();
         Stage stage =  new Stage();
@@ -159,6 +153,7 @@ public class Category implements Initializable {
     @FXML
     void changeCategory() throws SQLException {
         currentCategory = cbCategory.getValue();
+        manager.setCurrentCategory(currentCategory);
         tabPlayers.getItems().clear();
         fillPage();
     }

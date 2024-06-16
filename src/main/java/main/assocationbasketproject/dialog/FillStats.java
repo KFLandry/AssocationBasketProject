@@ -83,13 +83,21 @@ public class FillStats{
      void formatField(MouseEvent event){
         ClassFieldFormat.formatField((TextField) event.getSource(),"number");
     }
+
+    /**
+     * Save the individual performances of each player
+     *
+     * @param event the event
+     * @throws Exception the exception
+     * @see #addBatch(ClassPlayer)
+     */
     @FXML
     void save(ActionEvent event) throws Exception {
         if (!checkFields()){
             ClassPlayer player =  listView.getSelectionModel().getSelectedItem();
             if (player != null){
                 if(JOptionPane.showConfirmDialog(null, "Confirmez-vous les stats saisies?? Une fois validées, il est desormais impossible de les mofifier","confirm",JOptionPane.YES_NO_OPTION)==0){
-                    // Ajout des données de joueurs dans la requête preparée
+                    // Ajout des données de chaque joueur dans le batch preparé
                     addBatch(player);
                     listView.getItems().removeIf(classPlayer -> classPlayer.equals(player));
                     if (listView.getItems().isEmpty()){
@@ -101,7 +109,6 @@ public class FillStats{
                             //On close l'evenemement par la même occasion
                             closeEvent();
                             statement.close();
-                            //connexionASdb.getConnection().close();
                             Button button = (Button) event.getSource();
                             Stage stage = (Stage) button.getScene().getWindow();
                             stage.close();

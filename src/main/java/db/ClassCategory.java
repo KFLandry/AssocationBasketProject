@@ -45,10 +45,6 @@ public class ClassCategory {
                 mTeams = teams;
         }
     }
-    public void add(String []fields,String[] values) throws Exception {
-        int id = connexionASdb.insert("ba_team",fields,values);
-        mTeams.add(new ClassTeam(id));
-    }
     public ClassCategory(String []fields,String[] values) throws Exception {
         connexionASdb = new ConnexionASdb();
         if (connexionASdb.insert("ba_category",fields,values)> 0){
@@ -66,6 +62,20 @@ public class ClassCategory {
                 mStory=resultSet.getString("story");
             }
         };
+    }
+
+    /**
+     * Create a new category
+     * That operation directly create one default team
+     *
+     * @param fields Array of String of all the columns to add
+     * @param values Array of String of all the values of columns
+     * @throws Exception the exception
+     * @see db.ConnexionASdb
+     */
+    public void add(String []fields,String[] values) throws Exception {
+        int id = connexionASdb.insert("ba_team",fields,values);
+        mTeams.add(new ClassTeam(id));
     }
     public void update(String[] fields,String[] values) throws SQLException {
         connexionASdb.update(mCurrentTeam.getId(),"ba_team",fields,values);
